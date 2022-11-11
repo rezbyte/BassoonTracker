@@ -1,0 +1,43 @@
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background-color: black;
+  margin: 0;
+  padding: 0;
+}
+
+canvas {
+  margin: auto;
+  display: block;
+  cursor: url(skin/amiga_cursor.png), auto;
+}
+
+canvas:focus {
+  outline: none;
+}
+
+.message {
+  font-family: sans-serif;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  min-height: 30px;
+  padding: 20px;
+  background-color: rgba(243, 33, 70, 0.5);
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+}
+
+.message a {
+  color: white;
+}
+
+.message button {
+  padding: 10px 20px;
+  border-radius: 10px;
+}

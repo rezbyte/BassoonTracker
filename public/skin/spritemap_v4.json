@@ -7,16 +7,16 @@
     "height": 17
   },
   {
-    "name": "bar",
+    "name": "bar_hover",
     "x": 618,
-    "y": 222,
+    "y": 138,
     "width": 18,
     "height": 84
   },
   {
-    "name": "bar_hover",
+    "name": "bar",
     "x": 618,
-    "y": 138,
+    "y": 222,
     "width": 18,
     "height": 84
   },
@@ -35,22 +35,8 @@
     "height": 30
   },
   {
-    "name": "button_inlay",
-    "x": 142,
-    "y": 558,
-    "width": 71,
-    "height": 30
-  },
-  {
     "name": "button_inlay_active",
     "x": 71,
-    "y": 528,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_blue",
-    "x": 213,
     "y": 528,
     "width": 71,
     "height": 30
@@ -63,8 +49,8 @@
     "height": 30
   },
   {
-    "name": "button_inlay_green",
-    "x": 355,
+    "name": "button_inlay_blue",
+    "x": 213,
     "y": 528,
     "width": 71,
     "height": 30
@@ -77,16 +63,16 @@
     "height": 30
   },
   {
-    "name": "button_inlay_plain",
-    "x": 426,
+    "name": "button_inlay_green",
+    "x": 355,
     "y": 528,
     "width": 71,
     "height": 30
   },
   {
-    "name": "button_inlay_red",
-    "x": 71,
-    "y": 558,
+    "name": "button_inlay_plain",
+    "x": 426,
+    "y": 528,
     "width": 71,
     "height": 30
   },
@@ -105,16 +91,30 @@
     "height": 30
   },
   {
-    "name": "button_light",
-    "x": 331,
-    "y": 294,
-    "width": 132,
-    "height": 38
+    "name": "button_inlay_red",
+    "x": 71,
+    "y": 558,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay",
+    "x": 142,
+    "y": 558,
+    "width": 71,
+    "height": 30
   },
   {
     "name": "button_light_hover",
     "x": 331,
     "y": 256,
+    "width": 132,
+    "height": 38
+  },
+  {
+    "name": "button_light",
+    "x": 331,
+    "y": 294,
     "width": 132,
     "height": 38
   },
@@ -161,39 +161,18 @@
     "height": 11
   },
   {
-    "name": "mod",
+    "name": "module",
     "x": 596,
     "y": 246,
     "width": 12,
     "height": 11
   },
   {
-    "name": "module",
-    "x": 584,
-    "y": 257,
-    "width": 12,
-    "height": 11
-  },
-  {
     "name": "sample",
-    "x": 596,
+    "x": 584,
     "y": 257,
     "width": 12,
     "height": 11
-  },
-  {
-    "name": "xm",
-    "x": 584,
-    "y": 277,
-    "width": 12,
-    "height": 11
-  },
-  {
-    "name": "keybutton",
-    "x": 445,
-    "y": 332,
-    "width": 38,
-    "height": 18
   },
   {
     "name": "keybutton_highlight2",
@@ -217,16 +196,23 @@
     "height": 18
   },
   {
-    "name": "knob_back",
-    "x": 530,
-    "y": 277,
-    "width": 54,
-    "height": 54
+    "name": "keybutton",
+    "x": 445,
+    "y": 332,
+    "width": 38,
+    "height": 18
   },
   {
     "name": "knob_back_inactive",
     "x": 530,
     "y": 223,
+    "width": 54,
+    "height": 54
+  },
+  {
+    "name": "knob_back",
+    "x": 530,
+    "y": 277,
     "width": 54,
     "height": 54
   },
@@ -308,13 +294,6 @@
     "height": 16
   },
   {
-    "name": "panel_dark",
-    "x": 256,
-    "y": 0,
-    "width": 274,
-    "height": 219
-  },
-  {
     "name": "panel_dark_blueish",
     "x": 618,
     "y": 322,
@@ -336,18 +315,11 @@
     "height": 16
   },
   {
-    "name": "panel_inset",
-    "x": 618,
-    "y": 441,
-    "width": 16,
-    "height": 16
-  },
-  {
-    "name": "panel_inset_dark",
-    "x": 455,
-    "y": 403,
-    "width": 39,
-    "height": 24
+    "name": "panel_dark",
+    "x": 256,
+    "y": 0,
+    "width": 274,
+    "height": 219
   },
   {
     "name": "panel_inset_dark_active",
@@ -362,6 +334,20 @@
     "y": 363,
     "width": 43,
     "height": 28
+  },
+  {
+    "name": "panel_inset_dark",
+    "x": 455,
+    "y": 403,
+    "width": 39,
+    "height": 24
+  },
+  {
+    "name": "panel_inset",
+    "x": 618,
+    "y": 441,
+    "width": 16,
+    "height": 16
   },
   {
     "name": "panel_light",
@@ -392,13 +378,6 @@
     "height": 24
   },
   {
-    "name": "pianokey_black",
-    "x": 583,
-    "y": 385,
-    "width": 25,
-    "height": 85
-  },
-  {
     "name": "pianokey_black_down",
     "x": 556,
     "y": 385,
@@ -406,11 +385,11 @@
     "height": 86
   },
   {
-    "name": "pianokey_white",
-    "x": 530,
-    "y": 100,
-    "width": 32,
-    "height": 123
+    "name": "pianokey_black",
+    "x": 583,
+    "y": 385,
+    "width": 25,
+    "height": 85
   },
   {
     "name": "pianokey_white_down",
@@ -420,11 +399,11 @@
     "height": 122
   },
   {
-    "name": "play",
-    "x": 474,
-    "y": 219,
-    "width": 46,
-    "height": 15
+    "name": "pianokey_white",
+    "x": 530,
+    "y": 100,
+    "width": 32,
+    "height": 123
   },
   {
     "name": "play_active_red",
@@ -434,6 +413,13 @@
     "height": 22
   },
   {
+    "name": "play_green_hover",
+    "x": 530,
+    "y": 0,
+    "width": 88,
+    "height": 50
+  },
+  {
     "name": "play_green",
     "x": 530,
     "y": 50,
@@ -441,11 +427,11 @@
     "height": 50
   },
   {
-    "name": "play_green_hover",
-    "x": 530,
-    "y": 0,
-    "width": 88,
-    "height": 50
+    "name": "play",
+    "x": 474,
+    "y": 219,
+    "width": 46,
+    "height": 15
   },
   {
     "name": "radio_active",
@@ -457,30 +443,23 @@
   {
     "name": "radio_big_active",
     "x": 596,
-    "y": 277,
+    "y": 257,
     "width": 11,
     "height": 11
   },
   {
     "name": "radio_big_inactive",
     "x": 607,
-    "y": 277,
+    "y": 257,
     "width": 11,
     "height": 11
   },
   {
     "name": "radio_inactive",
-    "x": 608,
-    "y": 257,
+    "x": 584,
+    "y": 277,
     "width": 10,
     "height": 10
-  },
-  {
-    "name": "record",
-    "x": 256,
-    "y": 237,
-    "width": 71,
-    "height": 17
   },
   {
     "name": "record_active",
@@ -497,11 +476,11 @@
     "height": 17
   },
   {
-    "name": "slider_back",
-    "x": 339,
-    "y": 473,
-    "width": 138,
-    "height": 20
+    "name": "record",
+    "x": 256,
+    "y": 237,
+    "width": 71,
+    "height": 17
   },
   {
     "name": "slider_back_vert",
@@ -511,11 +490,11 @@
     "height": 138
   },
   {
-    "name": "slider_knob",
-    "x": 584,
-    "y": 223,
-    "width": 34,
-    "height": 23
+    "name": "slider_back",
+    "x": 339,
+    "y": 473,
+    "width": 138,
+    "height": 20
   },
   {
     "name": "slider_knob_vert",
@@ -523,6 +502,13 @@
     "y": 100,
     "width": 23,
     "height": 34
+  },
+  {
+    "name": "slider_knob",
+    "x": 584,
+    "y": 223,
+    "width": 34,
+    "height": 23
   },
   {
     "name": "solo",
@@ -546,13 +532,6 @@
     "height": 40
   },
   {
-    "name": "vu_green",
-    "x": 628,
-    "y": 496,
-    "width": 10,
-    "height": 6
-  },
-  {
     "name": "vu_green_active",
     "x": 618,
     "y": 496,
@@ -560,9 +539,9 @@
     "height": 6
   },
   {
-    "name": "vu_red",
-    "x": 584,
-    "y": 268,
+    "name": "vu_green",
+    "x": 628,
+    "y": 496,
     "width": 10,
     "height": 6
   },
@@ -574,8 +553,8 @@
     "height": 19
   },
   {
-    "name": "vu_yellow",
-    "x": 594,
+    "name": "vu_red",
+    "x": 584,
     "y": 268,
     "width": 10,
     "height": 6
@@ -588,6 +567,13 @@
     "height": 19
   },
   {
+    "name": "vu_yellow",
+    "x": 594,
+    "y": 268,
+    "width": 10,
+    "height": 6
+  },
+  {
     "name": "vubar",
     "x": 530,
     "y": 385,
@@ -595,16 +581,16 @@
     "height": 100
   },
   {
-    "name": "wave_saw",
-    "x": 594,
-    "y": 189,
+    "name": "wave_saw_inverse",
+    "x": 618,
+    "y": 485,
     "width": 15,
     "height": 11
   },
   {
-    "name": "wave_saw_inverse",
-    "x": 618,
-    "y": 485,
+    "name": "wave_saw",
+    "x": 594,
+    "y": 189,
     "width": 15,
     "height": 11
   },
