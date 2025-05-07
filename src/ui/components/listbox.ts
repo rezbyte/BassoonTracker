@@ -39,7 +39,7 @@ export default class ListBox extends Element {
   private hoverIndex: number | undefined;
   private prevHoverIndex: number | undefined;
   private selectedIndex: number;
-  private centerSelection: boolean = false;
+  private centerSelection = false;
   private background: Scale9Panel;
   onChange: (() => void) | undefined;
   private buttonUp: Button;

@@ -18,7 +18,7 @@ export class ModalDialog extends Element {
   private shouldRenderOkButton: boolean;
   private cancelButton: Button;
   private shouldRenderCancelButton: boolean;
-  private text: string = "";
+  private text = "";
   private inputBox: InputBox | undefined;
   inputValue: string | undefined;
   private shouldRenderInputBox: boolean;

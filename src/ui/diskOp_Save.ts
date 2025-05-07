@@ -1,4 +1,4 @@
-import { FILETYPE, MODULETYPE, EVENT, SAMPLETYPE, TRACKERMODE } from "../enum";
+import { FILETYPE, MODULETYPE, EVENT, SAMPLETYPE } from "../enum";
 import EventBus from "../eventBus";
 import Panel from "./components/panel";
 import Scale9Panel from "./components/scale9";
@@ -102,7 +102,7 @@ export default class DiskOperationSave extends Panel {
       highLightSelection: true,
     });
     this.selectionType.setItems(selectTypes[FILETYPE.module]);
-    this.selectionType.onChange = (selectedIndex) => {
+    this.selectionType.onChange = () => {
       const item = this.selectionType.getSelectedItem();
       this.saveAsFileType =
         item && item.fileType ? item.fileType : FILETYPE.module;
@@ -210,7 +210,7 @@ export default class DiskOperationSave extends Panel {
       }
     });
 
-    EventBus.on(EVENT.instrumentChange, (value: number) => {
+    EventBus.on(EVENT.instrumentChange, () => {
       if (this.isVisible() && this.mainFileType == FILETYPE.sample) {
         this.fileName =
           Tracker.getCurrentInstrument()
@@ -221,7 +221,7 @@ export default class DiskOperationSave extends Panel {
       }
     });
 
-    EventBus.on(EVENT.trackerModeChanged, (value: TRACKERMODE) => {
+    EventBus.on(EVENT.trackerModeChanged, () => {
       if (this.isVisible() && this.mainFileType == FILETYPE.module) {
         this.fileName = Tracker.getSong()?.filename || "";
         this.setFileName();

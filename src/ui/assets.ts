@@ -212,10 +212,9 @@ class Assets {
     this.assetsInfo = {
       button20_20: {
         generate: (andCache) => {
-          let result;
           const scale = this.panelDarkScale9;
           //result = UI.scale9Panel(0,0,20,20,scale);
-          result = new Button(0, 0, 20, 20);
+          const result = new Button(0, 0, 20, 20);
           result.setProperties({
             background: scale,
             hoverBackground: this.panelDarkHoverScale9,

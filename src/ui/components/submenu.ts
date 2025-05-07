@@ -60,7 +60,7 @@ export default class Submenu extends Element {
     this.setPosition(this.left, this.top);
   }
 
-  onHover(data: TouchData) {
+  onHover() {
     if (this.eventY === undefined) {
       console.error(
         "Submenu expected eventY to be processed for onHover but it was not!",

@@ -159,7 +159,7 @@ class Dropbox {
         console.log(b);
         if (next) next(result != null);
       },
-      onError: function (a) {
+      onError: function () {
         // onError: function (result, a, b) {
         if (next) next(false);
       },

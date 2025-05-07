@@ -6,8 +6,8 @@ interface CheckboxProperties extends ElementProperties {
 }
 
 export default class Checkbox extends Element {
-  private checked: boolean = false;
-  flashTimeout: number = 0; // Used in ui/app/menu.ts for a flash effect
+  private checked = false;
+  flashTimeout = 0; // Used in ui/app/menu.ts for a flash effect
   onToggle: ((checked: boolean) => void) | null = null;
 
   constructor(x?: number, y?: number, w?: number, h?: number) {
@@ -37,7 +37,7 @@ export default class Checkbox extends Element {
     if (this.onToggle && !internal) this.onToggle(this.checked);
   }
 
-  onClick(e: never) {
+  onClick() {
     this.setState(!this.checked);
   }
 

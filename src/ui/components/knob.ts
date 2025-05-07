@@ -43,7 +43,7 @@ export default class Knob extends Element implements Changeable<number> {
   onToggle: ((checked: boolean) => void) | null;
   onChange: ((value: number) => void) | undefined;
 
-  constructor(initialProperties?: KnobProperties) {
+  constructor() {
     // Formerly UI.knob
     super();
     this.type = "knob";

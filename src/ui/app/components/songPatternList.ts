@@ -17,7 +17,7 @@ export default class AppSongPatternList extends Panel {
   private spMin: Button;
   private spInsert: Button;
   private spDelete: Button;
-  constructor(height?: number) {
+  constructor() {
     // UI.app_songPatternList
     super();
     this.songPanel = new Scale9Panel(0, 0, 0, 0, Assets.panelInsetScale9);
@@ -95,7 +95,7 @@ export default class AppSongPatternList extends Panel {
     };
     this.spDelete.setProperties({ width: 40, height: 20 });
     this.addChild(this.spDelete);
-    EventBus.on(EVENT.patternTableChange, (value?: number) => {
+    EventBus.on(EVENT.patternTableChange, () => {
       const song = Tracker.getSong();
       if (song == null) {
         console.error(

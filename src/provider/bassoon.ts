@@ -18,7 +18,7 @@ class BassoonProvider {
       function (file) {
         //const b = new Blob([file.buffer], {type: "application/octet-stream"});
 
-        const fileName = Tracker.getFileName();
+        //const fileName = Tracker.getFileName();
 
         FetchService.sendBinary(url, file.buffer, function (result) {
           console.error(result);

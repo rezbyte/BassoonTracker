@@ -114,7 +114,7 @@ class DropboxService {
       handlers = { onComplete: handlers };
 
     let promise: Promise<CallReturn> | null = null;
-    let promisectl: Partial<{
+    const promisectl: Partial<{
       resolve(value: CallReturn | PromiseLike<CallReturn>): void;
       reject(value: XMLHttpRequestEventTarget | null): void;
     }> = {};
@@ -210,7 +210,7 @@ class DropboxService {
     apiArgs.redirect_uri = apiArgs.redirect_uri || window.location.href;
 
     let promise: Promise<void> | null = null;
-    let promisectl: Partial<{
+    const promisectl: Partial<{
       resolve(value: void | PromiseLike<void>): void;
       reject(value: UrlParameters): void;
     }> = {};

@@ -3,7 +3,7 @@ import AppPanelContainer from "./panelContainer";
 import Assets from "../assets";
 import Button from "../components/button";
 import SpinBox from "../spinBox";
-import { COMMAND, EVENT, TRACKERMODE } from "../../enum";
+import { COMMAND, EVENT } from "../../enum";
 import EventBus from "../../eventBus";
 import App from "../../app";
 import Tracker from "../../tracker";
@@ -100,7 +100,7 @@ export default class AppPianoView extends AppPanelContainer {
       this.octaveBox.setValue(this.octave, true);
     });
 
-    EventBus.on(EVENT.trackerModeChanged, (mode: TRACKERMODE) => {
+    EventBus.on(EVENT.trackerModeChanged, () => {
       this.maxOctave = Tracker.inFTMode() ? 7 : 3;
       this.minOctave = Tracker.inFTMode() ? 0 : 1;
       this.octaveBox.setMax(this.maxOctave, true);
@@ -245,7 +245,7 @@ export default class AppPianoView extends AppPanelContainer {
       this.bKeyHeight = Math.floor(keyHeight / 1.7);
       let bkeyX = this.keyWidth - bKeyWidth / 2 - 2;
       counter = 0;
-      let keyCounter = 0;
+      //let keyCounter = 0;
 
       while (bkeyX < this.width) {
         const thisOctave = Math.floor(counter / 7);
@@ -264,7 +264,7 @@ export default class AppPianoView extends AppPanelContainer {
             bKeyWidth,
             this.bKeyHeight,
           );
-          keyCounter++;
+          //keyCounter++;
         }
         counter++;
 

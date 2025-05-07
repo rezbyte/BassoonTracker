@@ -33,26 +33,26 @@ export default class NumberDisplay
   implements Control<number>, Changeable<number>
 {
   //private isActive: boolean = false;
-  protected isDisabled: boolean = false;
-  padLength: number = 4;
-  private value: number = 0;
-  private prevValue: number = 0;
-  private min: number = 0;
-  private max: number = 100;
-  protected step: number = 1;
-  private padChar: string = " ";
-  private padding: number = 0;
+  protected isDisabled = false;
+  padLength = 4;
+  private value = 0;
+  private prevValue = 0;
+  private min = 0;
+  private max = 100;
+  protected step = 1;
+  private padChar = " ";
+  private padding = 0;
   protected paddingLeft: number = this.padding;
   protected paddingTop: number = this.padding;
   protected paddingRight: number = this.padding;
   paddingBottom: number = this.padding;
-  private hasFocus: boolean = false;
-  private cursorPos: number = 0;
-  private isCursorVisible: boolean = false;
+  private hasFocus = false;
+  private cursorPos = 0;
+  private isCursorVisible = false;
   onChange: ((value: number) => void) | undefined;
   private fontSize: Size = Size.medium;
   protected font: BitmapFont | undefined;
-  private autoPadding: boolean = false;
+  private autoPadding = false;
   private fontOffset: { x: number; y: number; c: number };
   private static readonly fontOffsets: Record<
     Size,
@@ -62,10 +62,10 @@ export default class NumberDisplay
     1: { x: 6, y: 7, c: 0 }, // medium
     2: { x: 7, y: 4, c: -2 }, // big
   };
-  private trackUndo: boolean = false;
+  private trackUndo = false;
   private undoLabel: string | undefined;
-  private undoInstrument: boolean = false;
-  widthParam: number = 100; // Used by the button groups
+  private undoInstrument = false;
+  widthParam = 100; // Used by the button groups
 
   constructor(initialProperties?: NumberDisplayProperties) {
     // UI.numberDisplay

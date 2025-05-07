@@ -6,7 +6,6 @@ import {
   NOTEOFF,
   PC_FREQUENCY_HALF,
   AMIGA_PALFREQUENCY_HALF,
-  TRACKERMODE,
 } from "./enum";
 import Tracker, {
   periodNoteTable,
@@ -43,7 +42,7 @@ class Audio {
   private lowPassfilter: BiquadFilterNode | undefined;
   private filterChains: FilterChain[] = [];
   private cutOff = true;
-  private isRecording: boolean = false;
+  private isRecording = false;
   private mediaRecorder: MediaRecorder | undefined;
   private recordingChunks: Blob[] = [];
   private currentStereoSeparation = STEREOSEPARATION.BALANCED;
@@ -142,7 +141,7 @@ class Audio {
         setStereoSeparation(currentStereoSeparation);
       });
 
-      EventBus.on(EVENT.trackerModeChanged, (mode: TRACKERMODE) => {
+      EventBus.on(EVENT.trackerModeChanged, () => {
         setStereoSeparation();
       });
     }
@@ -492,7 +491,7 @@ class Audio {
           this.recordingChunks.push(evt.data);
         };
 
-        this.mediaRecorder.onstop = (evt) => {
+        this.mediaRecorder.onstop = () => {
           const blob = new Blob(this.recordingChunks, {
             type: "audio/ogg; codecs=opus",
           });
@@ -658,14 +657,12 @@ class Audio {
      @param {audioNode} source: audioBuffer of the root note
      @param {Number} root: period of the root note
      @param {Number} semitones: amount of semitones from the root note
-     @param {Number} finetune: finetune value of the base instrument
      @return {audioNode} audioBuffer of the new note
      */
   semiTonesFrom(
     source: AudioBufferSourceNode,
     root: number,
     semitones: number,
-    finetune: number,
   ): AudioBufferSourceNode {
     const target = this.currentContext.createBufferSource();
     target.buffer = source.buffer;
@@ -781,7 +778,7 @@ class Audio {
     let result = period;
     const note = periodNoteTable[period];
     if (note && note.tune) {
-      const centerTune = 8;
+      //const centerTune = 8;
       const tune = 8 + finetune;
       if (tune >= 0 && tune < note.tune.length) result = note.tune[tune];
     }

@@ -130,13 +130,14 @@ class ModArchive {
           next(this.parseModListV1(data, params));
         });
         break;
-      case "artist":
+      case "artist": {
         let apiUrl = "artist/" + param;
         if (page) apiUrl += "/" + page;
         this.loadFromApi<Module>(apiUrl, (data) => {
           next(this.parseModList(data)); //next(this.parseModList(data, params));
         });
         break;
+      }
       default:
         next([]);
     }

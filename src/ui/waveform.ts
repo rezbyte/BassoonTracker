@@ -4,7 +4,7 @@ import Element from "./components/element";
 import Scale9Panel from "./components/scale9";
 import { Y } from "./yascal/yascal";
 import Audio from "../audio";
-import type { Drag, Touch, TouchData } from "./input";
+import type { Drag, Touch } from "./input";
 import Instrument from "../models/instrument";
 import Tracker from "../tracker";
 import StateManager, { SampleUndo } from "./stateManager";
@@ -385,7 +385,7 @@ export default class WaveForm extends Element {
     });
   }
 
-  onTouchUp(touchData: Touch) {
+  onTouchUp() {
     if (this.isDraggingRange) {
       if (this.rangeStart > this.rangeEnd) {
         this.rangeLength = this.rangeStart - this.rangeEnd;
@@ -402,11 +402,11 @@ export default class WaveForm extends Element {
     if (this.rangeLength) UI.setSelection(this.processSelection.bind(this));
   }
 
-  onDown(touchData: Touch) {
+  onDown() {
     this.isDown = true;
   }
 
-  onHover(data: TouchData) {
+  onHover() {
     if (!this.isDraggingRange && !this.dragMarker && !this.isDown) {
       const prevDragMarker = this.activeDragMarker;
       if (!this.isDown) this.activeDragMarker = 0;
@@ -492,7 +492,7 @@ export default class WaveForm extends Element {
     this.refresh();
   }
 
-  play(period: number, offset: number = 0) {
+  play(period: number, offset = 0) {
     if (this.zoomAmount > 1) return;
 
     this.playingOffset = offset;
@@ -654,7 +654,7 @@ export default class WaveForm extends Element {
     UI.setSelection(this.processSelection.bind(this));
   }
 
-  render(internal?: boolean) {
+  render() {
     //   TODO: put wave on separate canvas
     if (this.needsRendering) {
       if (this.waveformDisplay.needsRendering) {
@@ -888,7 +888,7 @@ export default class WaveForm extends Element {
   }
 
   // effects
-  private splitRange(useEmptyRange: boolean = false): SplitSample {
+  private splitRange(useEmptyRange = false): SplitSample {
     if (this.currentSampleData === null) {
       console.error("No sample to split range from!");
       return { tail: [], range: [], head: [] };
@@ -1219,7 +1219,7 @@ export default class WaveForm extends Element {
           this.refresh();
         }
         break;
-      case SELECTION.PASTE:
+      case SELECTION.PASTE: {
         //console.error(rangeCache.length,rangeStart)
         const data = this.splitRange(true);
 
@@ -1255,6 +1255,7 @@ export default class WaveForm extends Element {
         }, 10);
 
         break;
+      }
       case SELECTION.POSITION:
         break;
     }

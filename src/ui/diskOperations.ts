@@ -39,10 +39,9 @@ export default class DiskOperations extends Panel {
   private dropBoxList: ListBoxItem[];
   private sampleSelectedIndex: number;
   private moduleSelectedIndex: number;
-  private onLoadChildren: (
-    item: ListBoxItem,
-    data: ListBoxItem[] | Samples | undefined,
-  ) => void;
+  private onLoadChildren:
+    | ((item: ListBoxItem, data: ListBoxItem[] | Samples | undefined) => void)
+    | null;
   private itemHandler:
     | typeof ModulesPl
     | typeof ModArchive
@@ -79,7 +78,7 @@ export default class DiskOperations extends Panel {
     this.dropBoxList = [];
     this.sampleSelectedIndex = 0;
     this.moduleSelectedIndex = 0;
-    this.onLoadChildren = () => {};
+    this.onLoadChildren = null;
     this.itemHandler;
 
     this.background = new Scale9Panel(0, 0, 20, 20, Assets.panelMainScale9);
@@ -146,7 +145,7 @@ export default class DiskOperations extends Panel {
     this.browseButton.onClick = () => {
       this.input = document.createElement("input");
       this.input.type = "file";
-      this.input.onchange = (e) => {
+      this.input.onchange = () => {
         const files = this.input?.files; // e.target.files
         if (files == null) return;
         Tracker.handleUpload(files);
@@ -177,7 +176,7 @@ export default class DiskOperations extends Panel {
       (target: RadioGroupItem | undefined) => {
         const action = this.actionPanel.getAction();
 
-        let targetString: string = "";
+        let targetString = "";
         if (target && target.target) targetString = target.target;
         if (
           target &&
@@ -224,7 +223,7 @@ export default class DiskOperations extends Panel {
       },
     );
 
-    EventBus.on(EVENT.instrumentChange, (value: number) => {
+    EventBus.on(EVENT.instrumentChange, () => {
       if (this.isVisible() && this.currentView == "samples")
         this.label.setLabel(
           "Load Sample to slot " + Tracker.getCurrentInstrumentIndex(),
@@ -651,7 +650,7 @@ export default class DiskOperations extends Panel {
                   Tracker.processFile(
                     reader.result as ArrayBuffer,
                     fileName,
-                    (isMod) => {
+                    () => {
                       UI.setStatus("Ready");
                     },
                   );
@@ -831,11 +830,11 @@ export default class DiskOperations extends Panel {
 
         if (this.itemHandler) {
           this.itemHandler.get(item.url, (data) => {
-            this.onLoadChildren(item, data);
+            this.onLoadChildren?.(item, data);
           });
         } else {
           FetchService.json<ListBoxItem[]>(item.url, (data) => {
-            this.onLoadChildren(item, data);
+            this.onLoadChildren?.(item, data);
           });
         }
       }

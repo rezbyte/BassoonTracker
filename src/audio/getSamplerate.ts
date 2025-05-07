@@ -200,7 +200,7 @@ export default function getSamplerate(
         const MP3_baseRate = [44100, 48000, 32000];
         const ID = (buf[i + 1] & 0x18) >> 3; // 0b00011000
         const Layer = (buf[i + 1] & 6) >> 1; // 0b00000110
-        const bitrate = (buf[i + 2] & 0xf0) >> 4; // 0b11110000
+        //const bitrate = (buf[i + 2] & 0xf0) >> 4; // 0b11110000
         const srate = (buf[i + 2] & 0xc) >> 2; // 0b00001100
         const channels = (buf[i + 3] & 0xc0) >> 6; // 0b11000000
 

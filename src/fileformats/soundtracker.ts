@@ -8,7 +8,7 @@ import Instrument from "../models/instrument";
 import Note from "../models/note";
 
 export default class SoundTracker implements FileFormat {
-  load(file: BinaryStream, name: string): Song {
+  load(file: BinaryStream): Song {
     Tracker.setTrackerMode(TRACKERMODE.PROTRACKER, true);
     Tracker.useLinearFrequency = false;
     Tracker.clearInstruments(15);
@@ -56,13 +56,13 @@ export default class SoundTracker implements FileFormat {
     const length = file.readUbyte();
     const speed = file.readUbyte();
 
-    let patternTable = [];
+    const patternTable = [];
     let highestPattern = 0;
     for (let i = 0; i < 128; ++i) {
       patternTable[i] = file.readUbyte();
       if (patternTable[i] > highestPattern) highestPattern = patternTable[i];
     }
-    patternTable = patternTable;
+    //patternTable = patternTable;
 
     file.goto(600);
 

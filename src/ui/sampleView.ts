@@ -16,7 +16,7 @@ import Checkbox from "./components/checkbox";
 import WaveForm, { RANGE, SamplePropertyChangeData } from "./waveform";
 import { Y } from "./yascal/yascal";
 import type Song from "../models/song";
-import { LegacyKeyboardEvent, TextAlignment } from "./basetypes";
+import { TextAlignment } from "./basetypes";
 import Layout from "./app/layout";
 import type { NoteInfo } from "../models/note";
 import NumberDisplay from "./components/numberdisplay";
@@ -898,7 +898,7 @@ export default class SampleView extends Panel {
     this.onResize();
   }
 
-  onKeyDown(keyCode: number, event: LegacyKeyboardEvent) {
+  onKeyDown(keyCode: number) {
     if (!this.visible) return;
     switch (keyCode) {
       case 37: // left

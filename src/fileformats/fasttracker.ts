@@ -12,7 +12,7 @@ import Host from "../host";
 
 export default class FastTracker implements FileFormat {
   // see ftp://ftp.modland.com/pub/documents/format_documentation/FastTracker%202%20v2.04%20(.xm).html
-  load(file: BinaryStream, name: string): Song {
+  load(file: BinaryStream): Song {
     console.log("loading FastTracker");
     Tracker.setTrackerMode(TRACKERMODE.FASTTRACKER, true);
     Tracker.clearInstruments(1);
@@ -62,7 +62,7 @@ export default class FastTracker implements FileFormat {
     const patterns: Pattern[] = Array(numberOfPatterns);
     for (let i = 0; i < numberOfPatterns; i++) {
       const headerSize = file.readDWord();
-      const packingType = file.readUbyte(); // always 0
+      file.readUbyte(); // packingType, always 0
       const patternLength = file.readWord();
       const patternSize = file.readWord();
 
@@ -157,34 +157,10 @@ export default class FastTracker implements FileFormat {
           instrument.fadeout = file.readWord();
           instrument.reserved = file.readWord();
 
-          function processEnvelope(envelope: Envelope): Envelope {
-            envelope.points = Array(12);
-            for (let si = 0; si < 12; si++) {
-              const sliced = envelope.raw.slice(si * 2, si * 2 + 2);
-              envelope.points[si] = [sliced[0], sliced[1]];
-            }
-            if (envelope.type & 1) {
-              // on
-              envelope.enabled = true;
-            }
-
-            if (envelope.type & 2) {
-              // sustain
-              envelope.sustain = true;
-            }
-
-            if (envelope.type & 4) {
-              // loop
-              envelope.loop = true;
-            }
-
-            return envelope;
-          }
-
-          instrument.volumeEnvelope = processEnvelope(
+          instrument.volumeEnvelope = FastTracker.processEnvelope(
             instrument.volumeEnvelope,
           );
-          instrument.panningEnvelope = processEnvelope(
+          instrument.panningEnvelope = FastTracker.processEnvelope(
             instrument.panningEnvelope,
           );
         }
@@ -322,6 +298,30 @@ export default class FastTracker implements FileFormat {
     this.validate(song);
 
     return song;
+  }
+
+  private static processEnvelope(envelope: Envelope): Envelope {
+    envelope.points = Array(12);
+    for (let si = 0; si < 12; si++) {
+      const sliced = envelope.raw.slice(si * 2, si * 2 + 2);
+      envelope.points[si] = [sliced[0], sliced[1]];
+    }
+    if (envelope.type & 1) {
+      // on
+      envelope.enabled = true;
+    }
+
+    if (envelope.type & 2) {
+      // sustain
+      envelope.sustain = true;
+    }
+
+    if (envelope.type & 4) {
+      // loop
+      envelope.loop = true;
+    }
+
+    return envelope;
   }
 
   // build internal
@@ -528,7 +528,7 @@ export default class FastTracker implements FileFormat {
           if (thisSample.bits === 16) {
             for (let si = 0, max = thisSample.length; si < max; si++) {
               // write 16-bit sample data
-              let b = Math.round(thisSample.data[si] * 32768);
+              const b = Math.round(thisSample.data[si] * 32768);
               delta = b - prev;
               prev = b;
 
@@ -539,7 +539,7 @@ export default class FastTracker implements FileFormat {
           } else {
             for (let si = 0, max = thisSample.length; si < max; si++) {
               // write 8-bit sample data
-              let b = Math.round(thisSample.data[si] * 127);
+              const b = Math.round(thisSample.data[si] * 127);
               delta = b - prev;
               prev = b;
 

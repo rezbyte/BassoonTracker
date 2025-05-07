@@ -231,7 +231,7 @@ export default class Visualiser extends Panel {
 
         let wy;
         let wx = pos.lineLeft;
-        let ww = pos.lineWidth;
+        const ww = pos.lineWidth;
 
         if (hasVolume && !isMute) {
           track.fftSize = this.analyserSize;
@@ -307,7 +307,7 @@ export default class Visualiser extends Panel {
 
         let wy;
         let wx = pos.lineLeft;
-        let ww = pos.lineWidth;
+        const ww = pos.lineWidth;
 
         if (hasVolume && !isMute) {
           track.fftSize = this.analyserSize;

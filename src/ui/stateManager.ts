@@ -95,7 +95,7 @@ class StateManager {
     undo: [],
     redo: [],
   };
-  private locked: boolean = false;
+  private locked = false;
 
   contructor() {
     EventBus.on(EVENT.commandUndo, this.undo);
@@ -110,22 +110,18 @@ class StateManager {
 
     let doRegister = true;
 
-    if (this.history.undo.length) {
-      switch (action.type) {
-        case EDITACTION.VALUE:
-          const lastAction = this.history.undo[this.history.undo.length - 1];
-          if (
-            lastAction &&
-            lastAction.type === action.type &&
-            lastAction.id === action.id
-          ) {
-            doRegister = false;
-            lastAction.to = action.to;
-            console.log("Ignoring sequential Undo, to: " + action.to);
-          } else {
-            console.log("Add Value Undo");
-          }
-          break;
+    if (this.history.undo.length && action.type === EDITACTION.VALUE) {
+      const lastAction = this.history.undo[this.history.undo.length - 1];
+      if (
+        lastAction &&
+        lastAction.type === action.type &&
+        lastAction.id === action.id
+      ) {
+        doRegister = false;
+        lastAction.to = action.to;
+        console.log("Ignoring sequential Undo, to: " + action.to);
+      } else {
+        console.log("Add Value Undo");
       }
     }
 
@@ -153,7 +149,7 @@ class StateManager {
         case EDITACTION.NOTE:
         case EDITACTION.RANGE:
         case EDITACTION.TRACK:
-        case EDITACTION.PATTERN:
+        case EDITACTION.PATTERN: {
           const song = Tracker.getSong();
           if (song == null) return;
           const patternData = song.patterns[action.id];
@@ -171,6 +167,7 @@ class StateManager {
           });
           EventBus.trigger(EVENT.patternChange, action.id);
           break;
+        }
         case EDITACTION.VALUE:
           action.target.setValue(action.from);
           break;
@@ -212,7 +209,7 @@ class StateManager {
         case EDITACTION.NOTE:
         case EDITACTION.RANGE:
         case EDITACTION.TRACK:
-        case EDITACTION.PATTERN:
+        case EDITACTION.PATTERN: {
           const song = Tracker.getSong();
           if (song == null) {
             Tracker.new();
@@ -237,6 +234,7 @@ class StateManager {
           });
           EventBus.trigger(EVENT.patternChange, action.id);
           break;
+        }
         case EDITACTION.VALUE:
           action.target.setValue(action.to);
           break;

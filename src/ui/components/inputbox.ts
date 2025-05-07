@@ -29,9 +29,9 @@ export default class InputBox
   private background: Scale9Panel;
   private onSubmit: ((value: string) => void) | undefined;
   onChange: ((value: string) => void) | undefined;
-  private trackUndo: boolean = false;
+  private trackUndo = false;
   private undoLabel: string | undefined;
-  private undoInstrument: boolean = false;
+  private undoInstrument = false;
 
   constructor(initialProperties?: InputBoxProperties) {
     // formerly UI.inputbox
@@ -163,7 +163,7 @@ export default class InputBox
   }
 
   deActivate(target?: Element | boolean) {
-    const andSubmit: boolean = !!target;
+    const andSubmit = !!target;
     if (this.isActive) {
       this.isCursorVisible = false;
       this.isActive = false;

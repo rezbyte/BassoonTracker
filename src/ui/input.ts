@@ -2,13 +2,7 @@ import EventBus from "../eventBus";
 import Tracker, { Effects } from "../tracker";
 import { FTNotes } from "../tracker";
 import Editor from "../editor";
-import {
-  EVENT,
-  KEYBOARDTABLE,
-  NOTEPERIOD,
-  OCTAVENOTES,
-  TRACKERMODE,
-} from "../enum";
+import { EVENT, KEYBOARDTABLE, NOTEPERIOD, OCTAVENOTES } from "../enum";
 import { NoteInfo } from "../models/note";
 import Audio from "../audio";
 import Element from "./components/element";
@@ -123,7 +117,7 @@ class Input {
       });
     });
 
-    EventBus.on(EVENT.trackerModeChanged, (mode: TRACKERMODE) => {
+    EventBus.on(EVENT.trackerModeChanged, () => {
       if (Tracker.inFTMode()) {
         this.maxOctave = 7;
         this.minOctave = 0;
@@ -634,7 +628,7 @@ class Input {
 
         if (target && target.onMouseWheel) {
           const deltaY: number = event.deltaY || -event.detail;
-          const deltaX = event.deltaX || 0;
+          //const deltaX = event.deltaX || 0;
 
           me.touchData.mouseWheels.unshift(deltaY);
           if (me.touchData.mouseWheels.length > 10)
@@ -677,23 +671,23 @@ class Input {
       }
     }
 
-    function handlePaste(e: ClipboardEvent) {
+    function handlePaste() {
       UI.pasteSelection(true);
     }
 
-    function handleCopy(e: ClipboardEvent) {
+    function handleCopy() {
       UI.copySelection(true);
     }
 
-    function handleCut(e: ClipboardEvent) {
+    function handleCut() {
       console.error("cut");
       UI.cutSelection(true);
     }
-    function handleUndo(e: ClipboardEvent) {
+    function handleUndo() {
       console.error("undo");
     }
 
-    function handleDelete(e: ClipboardEvent) {
+    function handleDelete() {
       console.error("delete");
     }
 
@@ -991,7 +985,7 @@ class Input {
     }
   }
 
-  handleNoteOff(index: number, register: boolean = false) {
+  handleNoteOff(index: number, register = false) {
     if (
       !Settings.sustainKeyboardNotes &&
       this.keyDown[index] &&

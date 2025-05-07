@@ -49,7 +49,7 @@ export default class DiskOperationType extends Panel {
       { label: "sample", active: false, fileType: FILETYPE.sample },
       //{label:"pattern",active:false, fileType: FILETYPE.pattern}
     ]);
-    this.selectionType.onChange = (selectedIndex) => {
+    this.selectionType.onChange = () => {
       EventBus.trigger(
         EVENT.diskOperationTargetChange,
         this.selectionType.getSelectedItem(),

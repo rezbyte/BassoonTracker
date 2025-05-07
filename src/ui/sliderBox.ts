@@ -34,7 +34,7 @@ export class SliderBox extends Element {
   private padLength = 4;
   private padChar = " ";
   onChange: ((value: number) => void) | undefined;
-  private vertical: boolean = false;
+  private vertical = false;
 
   private labelX = 0;
   private labelY = 0;
@@ -51,9 +51,9 @@ export class SliderBox extends Element {
 
   private numberDisplay: NumberDisplay;
   private slider: RangeSlider;
-  private trackUndo: boolean = false;
+  private trackUndo = false;
   private undoLabel: string | null = null;
-  private undoInstrument: boolean = false;
+  private undoInstrument = false;
 
   constructor(initialProperties?: SliderBoxProperties) {
     // UI.sliderBox

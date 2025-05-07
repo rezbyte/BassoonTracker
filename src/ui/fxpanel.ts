@@ -49,13 +49,12 @@ export default class FxPanel extends Panel {
         label: effects[i],
         disabled: i > 1,
       });
-      const me = this;
-      knob.onChange = function (value) {
-        me.handleKnob(this, value);
+      knob.onChange = (value) => {
+        this.handleKnob(knob, value);
       };
-      knob.onToggle = function (value) {
-        me.handleKnobState(this, value);
-        me.handleKnob(this, this.getValue());
+      knob.onToggle = (value) => {
+        this.handleKnobState(knob, value);
+        this.handleKnob(knob, knob.getValue());
       };
       this.addChild(knob);
       this.knobs.push(knob);

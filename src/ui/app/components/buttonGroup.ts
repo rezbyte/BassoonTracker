@@ -81,7 +81,7 @@ export default class ButtonGroup extends Panel {
     const buttonWidth = this.width;
     let left = 0;
 
-    this.buttons.forEach(function (button, index) {
+    this.buttons.forEach(function (button) {
       button.setProperties({
         width: Math.floor((buttonWidth * button.widthParam) / 100),
         height: buttonHeight,

@@ -1,8 +1,8 @@
 type CachedAssets = {
   images: Record<string, object>;
   audio: Record<string, AudioBuffer | undefined>;
-  json: {};
-  arrayBuffer: {};
+  json: Record<string, unknown>;
+  arrayBuffer: Record<string, ArrayBuffer>;
   darkPanel: HTMLCanvasElement | undefined;
 };
 export const cachedAssets: CachedAssets = {

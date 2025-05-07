@@ -49,7 +49,7 @@ export default class DiskOperationActions extends Panel {
       { label: "load", active: true },
       { label: "save", active: false },
     ]);
-    this.selectionType.onChange = function (selectedIndex) {
+    this.selectionType.onChange = function () {
       EventBus.trigger(EVENT.diskOperationActionChange, this.getSelectedItem());
     };
     this.addChild(this.selectionType);

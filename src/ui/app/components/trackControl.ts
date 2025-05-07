@@ -127,7 +127,7 @@ export default class TrackControl extends Element {
     });
   }
 
-  private triggerChangeEvent(wasSolo: boolean = false) {
+  private triggerChangeEvent(wasSolo = false) {
     EventBus.trigger(EVENT.trackStateChange, {
       track: this.track,
       solo: this.soloButton.isActive,

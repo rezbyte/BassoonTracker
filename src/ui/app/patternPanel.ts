@@ -15,7 +15,7 @@ import SampleView from "../sampleView";
 
 export default class AppPatternPanel extends AppPanelContainer {
   private trackControls: TrackControl[];
-  private patternTrackLeft: number = 0;
+  private patternTrackLeft = 0;
   private currentView: string;
   private editPanel: EditPanel;
   private infoPanel: InfoPanel;
@@ -30,7 +30,7 @@ export default class AppPatternPanel extends AppPanelContainer {
     // UI.app_patternPanel
     super(80);
     this.trackControls = [];
-    const maxVisibleTracks = 4;
+    //const maxVisibleTracks = 4;
     this.currentView = "main";
 
     this.editPanel = new EditPanel();
@@ -49,7 +49,7 @@ export default class AppPatternPanel extends AppPanelContainer {
     this.visualiser.name = "mainAnalyser";
 
     this.scopesClickHandler = new Element();
-    this.scopesClickHandler.render = (internal?: boolean) => {
+    this.scopesClickHandler.render = () => {
       return undefined;
     };
     this.scopesClickHandler.onClick = (touchData) => {
@@ -160,7 +160,7 @@ export default class AppPatternPanel extends AppPanelContainer {
       }
     });
 
-    EventBus.on(EVENT.visibleTracksCountChange, (count: number) => {
+    EventBus.on(EVENT.visibleTracksCountChange, () => {
       if (Layout.showSideBar) {
         if (this.currentView === "main") {
           this.patternSidebar.show();

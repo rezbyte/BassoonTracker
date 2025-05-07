@@ -129,13 +129,14 @@ export default class BitmapFont {
     switch (typeof rawCharWidth) {
       case "number":
         return { fixedWidth: true, charWidth: rawCharWidth };
-      case "string":
+      case "string": {
         const splitCharWidth = rawCharWidth.split("");
         const charWidth: number[] = new Array(splitCharWidth.length);
         splitCharWidth.forEach(function (c, index) {
           charWidth[index] = parseInt(c);
         });
         return { fixedWidth: false, charWidth };
+      }
       case "object":
         return { fixedWidth: false, charWidth: rawCharWidth };
     }

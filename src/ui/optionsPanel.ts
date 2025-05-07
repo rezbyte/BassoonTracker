@@ -39,7 +39,7 @@ export default class OptionsPanel extends Panel {
   private mainLabel: Label;
   private closeButton: Button;
   private options: Option[];
-  private isDisabled: boolean = false;
+  private isDisabled = false;
 
   constructor() {
     // UI.OptionsPanel

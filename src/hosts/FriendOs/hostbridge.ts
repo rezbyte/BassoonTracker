@@ -7,7 +7,7 @@ import FetchService from "../../fetchService";
 import Editor from "../../editor";
 
 declare class Application {
-  static progDir: any;
+  static progDir: string;
   static initFriendVR: boolean;
   static receiveMessage: (msg: Message) => void;
   static friendCallBackId: string;
@@ -18,7 +18,7 @@ declare class Application {
 }
 
 class FriendOSBridge implements HostBridge {
-  friendCallBackId: string = "";
+  friendCallBackId = "";
 
   // FriendOS maps local urls to filesystem reads, urls paramater won't work
   useUrlParams = false;

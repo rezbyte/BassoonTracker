@@ -10,7 +10,7 @@ import EventBus from "../eventBus";
 import Settings from "../settings";
 
 export default class ProTracker implements FileFormat {
-  load(file: BinaryStream, name: string): Song {
+  load(file: BinaryStream): Song {
     Tracker.setTrackerMode(TRACKERMODE.PROTRACKER, true);
     Tracker.useLinearFrequency = false;
     Tracker.clearInstruments(31);
@@ -80,13 +80,13 @@ export default class ProTracker implements FileFormat {
     const length = file.readUbyte();
     file.jump(1); // 127 byte
 
-    let patternTable = [];
+    const patternTable = [];
     let highestPattern = 0;
     for (let i = 0; i < 128; ++i) {
       patternTable[i] = file.readUbyte();
       if (patternTable[i] > highestPattern) highestPattern = patternTable[i];
     }
-    patternTable = patternTable;
+    //patternTable = patternTable;
 
     file.goto(1084);
 

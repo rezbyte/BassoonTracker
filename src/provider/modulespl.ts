@@ -60,13 +60,14 @@ class ModulesPl {
       case "artists":
         this.loadArtists(next);
         break;
-      case "artist":
+      case "artist": {
         let apiUrl = "artist/" + param;
         if (page) apiUrl += "/" + page;
         this.loadFromApi<Module>(apiUrl, (data) => {
           next(this.parseModList(data));
         });
         break;
+      }
       default:
         next([]);
     }

@@ -10,23 +10,23 @@ type midiSetting = "disabled" | "enabled-note" | "enabled";
 type keyboardLayout = keyof typeof KEYBOARDTABLE;
 
 class Settings {
-  baseUrl: string = "";
-  unrollLoops: boolean = false;
-  unrollShortLoops: boolean = false; // Note: the conversion between byte_length loops (amiga) and time-based loops (Web Audio) is not 100% accurate for very short loops
-  sustainKeyboardNotes: boolean = false;
-  useHover: boolean = true;
+  baseUrl = "";
+  unrollLoops = false;
+  unrollShortLoops = false; // Note: the conversion between byte_length loops (amiga) and time-based loops (Web Audio) is not 100% accurate for very short loops
+  sustainKeyboardNotes = false;
+  useHover = true;
   keyboardTable: keyboardLayout = "qwerty";
   vubars: vubarSetting = true;
   stereoSeparation: STEREOSEPARATION = STEREOSEPARATION.BALANCED;
   dropboxMode: dropBoxModeSetting = "rename";
-  emulateProtracker1OffsetBug: boolean = true;
-  loadInitialFile: boolean = true;
-  skipFrame: number = 1;
-  canvasId: string = "canvas";
+  emulateProtracker1OffsetBug = true;
+  loadInitialFile = true;
+  skipFrame = 1;
+  canvasId = "canvas";
   midi: midiSetting = "disabled";
-  highDPI: boolean = false;
-  showKey: boolean = false;
-  showMidi: boolean = false;
+  highDPI = false;
+  showKey = false;
+  showMidi = false;
 
   readSettings() {
     const rawSettings = Storage.get("bassoonTrackerSettings");

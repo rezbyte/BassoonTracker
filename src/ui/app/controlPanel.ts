@@ -28,7 +28,7 @@ export default class AppControlPanel extends AppPanelContainer {
   private labelTrackerMode: Label;
   private labelTrackView: Label;
   private trackCountSpinbox: SpinBox;
-  private innerHeight: number = 0;
+  private innerHeight = 0;
 
   constructor() {
     // UI.app_controlPanel
@@ -95,7 +95,7 @@ export default class AppControlPanel extends AppPanelContainer {
 
     this.trackView = [4, 8, 12, 16];
     this.trackButtons = [];
-    this.trackView.forEach((count) => {
+    this.trackView.forEach(() => {
       this.trackButtons.push(new Button());
     });
     this.trackButtons.forEach((button, index) => {

@@ -110,12 +110,12 @@ interface StepResult {
   patternDelay?: number;
 }
 
-export let periodNoteTable: NotePeriod[] = [];
-export let periodFinetuneTable: number[][] = [];
-export let nameNoteTable: Record<string, NotePeriod> = {};
-export let noteNames: string[] = [];
-export let FTNotes: FTNotePeriod[] = [];
-export let FTPeriods: number[] = [];
+export const periodNoteTable: NotePeriod[] = [];
+export const periodFinetuneTable: number[][] = [];
+export const nameNoteTable: Record<string, NotePeriod> = {};
+export const noteNames: string[] = [];
+export const FTNotes: FTNotePeriod[] = [];
+export const FTPeriods: number[] = [];
 
 class Tracker {
   // TODO: strip UI stuff
@@ -167,7 +167,7 @@ class Tracker {
 
   isPlugin = false;
 
-  autoPlay: boolean = false;
+  autoPlay = false;
 
   init(config?: Config) {
     this.clock = new WAAClock(Audio.context as AudioContext);
@@ -182,7 +182,7 @@ class Tracker {
       periodFinetuneTable[i] = [];
     }
 
-    for (let key in NOTEPERIOD) {
+    for (const key in NOTEPERIOD) {
       const note: NotePeriod = NOTEPERIOD[key];
       periodNoteTable[note.period] = note;
       nameNoteTable[note.name] = note;
@@ -452,7 +452,7 @@ class Tracker {
     };
   }
 
-  private startPattern(patternIndex: number = 0) {
+  private startPattern(patternIndex = 0) {
     if (this.song == null) {
       console.error("Cannot start a pattern without a song!");
       return;
@@ -640,9 +640,9 @@ class Tracker {
 
   playPatternStep(
     step: number,
-    time: number = 0,
+    time = 0,
     patternData: Pattern | undefined = this.currentPatternData,
-    songPostition: number = 0,
+    songPostition = 0,
   ): StepResult {
     if (patternData === undefined) {
       throw new Error(
@@ -1197,7 +1197,7 @@ class Tracker {
         if (this.trackEffectCache[track].vibrato)
           trackEffects.vibrato = this.trackEffectCache[track].vibrato;
         break;
-      case 7:
+      case 7: {
         // Tremolo
         // note: having a instrument number without a period doesn't seem te have any effect (protracker)
         // when only a period -> reset the wave form / timer
@@ -1232,6 +1232,7 @@ class Tracker {
         this.trackEffectCache[track].tremolo = trackEffects.tremolo;
 
         break;
+      }
       case 8:
         // Set Panning position
         trackEffects.panning = {
@@ -1364,7 +1365,7 @@ class Tracker {
         y = value & 0x0f;
         result.targetPatternPosition = x * 10 + y;
         break;
-      case 14:
+      case 14: {
         // Subeffects
         const subEffect = value >> 4;
         let subValue = value & 0x0f;
@@ -1544,6 +1545,7 @@ class Tracker {
             console.warn("Subeffect " + subEffect + " not implemented");
         }
         break;
+      }
       case 15:
         //speed
         // Note: shouldn't this be "set speed at time" instead of setting it directly?
@@ -1567,7 +1569,7 @@ class Tracker {
         value = Math.min(value, 64);
         if (!this.isPlugin) Audio.setMasterVolume(value / 64, time);
         break;
-      case 17:
+      case 17: {
         //Fasttracker only - global volume slide
 
         x = value >> 4;
@@ -1593,6 +1595,7 @@ class Tracker {
         }
 
         break;
+      }
       case 20:
         //Fasttracker only - Key off
         if (this.inFTMode()) {
@@ -2200,10 +2203,10 @@ class Tracker {
   }
 
   load(
-    url: string = "/demomods/StardustMemories.mod",
-    skipHistory: boolean = false,
+    url = "/demomods/StardustMemories.mod",
+    skipHistory = false,
     next?: () => void,
-    initial: boolean = false,
+    initial = false,
   ) {
     if (url.indexOf("://") < 0 && url.indexOf("/") !== 0)
       url = Host.getBaseUrl() + url;
@@ -2311,7 +2314,7 @@ class Tracker {
 
       const reader = new FileReader();
       reader.onload = () => {
-        this.processFile(reader.result as ArrayBuffer, file.name, (isMod) => {
+        this.processFile(reader.result as ArrayBuffer, file.name, () => {
           if (UI) UI.setStatus("Ready");
         });
       };
@@ -2335,7 +2338,7 @@ class Tracker {
       // using UZIP: https://github.com/photopea/UZIP.js
       const myArchive = UZIP.parse(arrayBuffer);
       console.log(myArchive);
-      for (let name in myArchive) {
+      for (const name in myArchive) {
         this.processFile(myArchive[name].buffer, name, next);
         break; // just use first entry
       }
@@ -2385,7 +2388,7 @@ class Tracker {
       if (this._isPlaying) this.stop();
       this.resetDefaultSettings();
 
-      this.song = result.loader().load(file, name);
+      this.song = result.loader().load(file);
       this.song.filename = name;
 
       this.onModuleLoad();
@@ -2491,7 +2494,7 @@ class Tracker {
   }
 
   setTrackerMode(mode: TRACKERMODE, force: boolean) {
-    let doChange = () => {
+    const doChange = () => {
       this.trackerMode = mode;
       Settings.emulateProtracker1OffsetBug = !this.inFTMode();
       EventBus.trigger(EVENT.trackerModeChanged, mode);

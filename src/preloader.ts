@@ -4,10 +4,10 @@ import Audio from "./audio";
 export default class PreLoader {
   private type: PRELOADTYPE = PRELOADTYPE.image;
   private loadCount = 0;
-  private max?: number;
-  private next?: Function;
+  private max: number | null = null;
+  private next: (() => void) | null = null;
 
-  load(urls: string[], type: PRELOADTYPE, next: Function) {
+  load(urls: string[], type: PRELOADTYPE, next: () => void) {
     this.type = type || PRELOADTYPE.image;
     this.loadCount = 0;
     this.max = urls.length;
@@ -61,6 +61,6 @@ export default class PreLoader {
   }
   private getLoadCount(url: string, object: object) {
     cachedAssets.images[url] = object;
-    if (++this.loadCount == this.max) if (this.next) this.next();
+    if (++this.loadCount === this.max) if (this.next) this.next();
   }
 }

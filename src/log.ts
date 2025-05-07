@@ -43,7 +43,7 @@ class Logger {
         stats.averageRenderFps +
         "/" +
         devicePixelRatio,
-      function (result) {
+      function () {
         //console.log(result);
       },
     );

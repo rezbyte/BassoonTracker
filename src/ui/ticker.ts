@@ -5,13 +5,13 @@ class Ticker {
   // groups UI related timers
   private tick2Handler?: () => void;
   private tick4Handler?: () => void;
-  private onEachTick2Delay: number = 0;
-  private onEachTick4Delay: number = 0;
-  private onEachTick2Count: number = 0;
-  private onEachTick4Count: number = 0;
+  private onEachTick2Delay = 0;
+  private onEachTick4Delay = 0;
+  private onEachTick2Count = 0;
+  private onEachTick4Count = 0;
   private ticker2 = 0;
   private ticker4 = 0;
-  private tickerActive: boolean = false;
+  private tickerActive = false;
 
   private OnScreenRefresh() {
     if (this.tickerActive) {

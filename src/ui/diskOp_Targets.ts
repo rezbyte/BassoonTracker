@@ -22,7 +22,7 @@ export default class DiskOperationTargets extends Panel {
   private targetsModule: Target[];
   private targetsSample: Target[];
   private targetsSave: Target[];
-  private currentLoadTargets: any;
+  private currentLoadTargets: Target[];
   private currentAction: string;
   private selectionTarget: RadioGroup;
   constructor() {
@@ -85,7 +85,7 @@ export default class DiskOperationTargets extends Panel {
       highLightSelection: true,
     });
     this.selectionTarget.setItems(this.targetsModule);
-    this.selectionTarget.onChange = (selectedIndex) => {
+    this.selectionTarget.onChange = () => {
       EventBus.trigger(
         EVENT.diskOperationTargetChange,
         this.selectionTarget.getSelectedItem(),

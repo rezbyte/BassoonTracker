@@ -21,8 +21,8 @@ export default class Sample {
   };
 
   info?: MetaData;
-  type: number = 0;
-  reserved: number = 0;
+  type = 0;
+  reserved = 0;
 
   check() {
     let min = 0;

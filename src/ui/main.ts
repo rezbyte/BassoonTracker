@@ -66,7 +66,7 @@ class _UI {
   private currentMeasure = 0;
   private _endMeasure = 0;
   private frames = 0;
-  private fps: number = 0;
+  private fps = 0;
   private minFps = 100;
   private fpsList: number[] = [];
   private renderfpsList: number[] = [];
@@ -456,7 +456,7 @@ class _UI {
     if (debug) UI.measure("Generate Main Panel");
   }
 
-  private render(time?: number) {
+  private render() {
     let doRender = true;
 
     if (Tracker.isPlaying()) {
@@ -596,7 +596,7 @@ class _UI {
     this.selection = undefined;
   }
 
-  pasteSelection(andClear: boolean = false) {
+  pasteSelection(andClear = false) {
     if (!this.selection && this.prevSelection) {
       this.selection = this.prevSelection;
       this.selection(SELECTION.POSITION);
@@ -668,11 +668,12 @@ class _UI {
 
     dialog.onKeyDown = function (keyCode) {
       switch (keyCode) {
-        case 13:
+        case 13: {
           const value = dialog.inputValue;
           dialog.close();
           if (onOk) onOk(value);
           return true;
+        }
         case 27:
           dialog.close();
           if (onCancel) onCancel();

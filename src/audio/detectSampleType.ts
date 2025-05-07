@@ -39,7 +39,7 @@ export function detectSampleType(
       sampleType = SAMPLETYPE.OPUS;
       decoder = decodeFileWithAudioContext; //readRIFFsample;
       break;
-    case SAMPLETYPE.IFF_8SVX:
+    case SAMPLETYPE.IFF_8SVX: {
       file.goto(8);
       const subId = file.readString(4);
       if (subId == "8SVX") {
@@ -47,6 +47,7 @@ export function detectSampleType(
         decoder = read8SVXsample;
       }
       break;
+    }
     default:
       console.log("Unknown sample format, expect RAW_8BIT:", sample.info);
       break;

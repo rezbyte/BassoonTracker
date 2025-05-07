@@ -4,7 +4,6 @@ import {
   TextAlignment,
 } from "../basetypes";
 import Element, { ElementProperties } from "./element";
-import { TouchData } from "../input";
 import BitmapFont from "./bitmapfont";
 import Scale9Panel from "./scale9";
 import { Scale9 } from "../assets";
@@ -51,7 +50,7 @@ export default class Button extends Element {
   private isHover: boolean;
   info: { label: string; onClick: () => void } | undefined; // Used by pattern sidebar
   index: number | null = null; // Used by options panel
-  widthParam: number = 100; // Used by sample view
+  widthParam = 100; // Used by sample view
 
   constructor(x?: number, y?: number, w?: number, h?: number, text?: string) {
     // Formerly UI.button
@@ -158,7 +157,7 @@ export default class Button extends Element {
     this.refresh();
   }
 
-  setActive(state: boolean = true) {
+  setActive(state = true) {
     this.isActive = !!state;
     this.refresh();
   }
@@ -170,7 +169,7 @@ export default class Button extends Element {
     this.refresh();
   }
 
-  onHover(data: TouchData) {
+  onHover() {
     if (this.hasHover) {
       if (!this.isActive) {
         this.isHover = true;

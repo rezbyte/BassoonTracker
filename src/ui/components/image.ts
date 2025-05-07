@@ -54,13 +54,14 @@ export default class Image extends Element {
           case ScaleRule.stretch:
             this.ctx.drawImage(this.baseImage, 0, 0, this.width, this.height);
             break;
-          default:
+          default: {
             let marginW = (this.width - this.baseImage.width) >> 1;
             let marginH = (this.height - this.baseImage.height) >> 1;
             if (this.verticalAlign === "top") marginH = 0;
             if (this.horizintalAlign === TextAlignment.right)
               marginW = this.width - this.baseImage.width;
             this.ctx.drawImage(this.baseImage, marginW, marginH);
+          }
         }
     }
     this.needsRendering = false;

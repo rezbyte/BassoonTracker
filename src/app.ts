@@ -19,7 +19,7 @@ class app {
     typeof import.meta.env.PACKAGE_VERSION === "undefined"
       ? ""
       : import.meta.env.PACKAGE_VERSION;
-  isPlugin: boolean = false;
+  isPlugin = false;
 
   init() {
     if (
@@ -79,7 +79,7 @@ class app {
         case COMMAND.toggleAppSideBar:
           EventBus.trigger(EVENT.toggleView, VIEW.appSideBar);
           break;
-        case COMMAND.showAbout:
+        case COMMAND.showAbout: {
           if (UI.mainPanel == null) {
             console.error(
               "Could not show the About modal because the main panel has not been initalized!",
@@ -97,7 +97,7 @@ class app {
           dialog.onClick = dialog.close;
 
           const version = Host.getVersionNumber();
-          const build = Host.getBuildNumber();
+          //const build = Host.getBuildNumber();
           dialog.setText(
             "BassoonTracker//Old School Amiga MOD and XM tracker/in plain javascript//©2017-2021 by Steffest//version " +
               version +
@@ -106,6 +106,7 @@ class app {
 
           UI.setModalElement(dialog);
           break;
+        }
         case COMMAND.showHelp:
           window.open("https://www.stef.be/bassoontracker/docs/");
           break;
@@ -118,7 +119,7 @@ class app {
         case COMMAND.showGithub:
           window.open("https://github.com/steffest/bassoontracker");
           break;
-        case COMMAND.showStats:
+        case COMMAND.showStats: {
           const stats = document.getElementById("MrDStats");
           if (!stats) {
             const script = document.createElement("script");
@@ -132,9 +133,9 @@ class app {
             };
             script.src = "src/plugins/stats.js";
             document.head.appendChild(script);
-            break;
           }
           break;
+        }
         case COMMAND.cut:
           UI.cutSelection(true);
           break;

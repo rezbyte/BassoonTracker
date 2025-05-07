@@ -3,7 +3,7 @@ import Element from "./components/element";
 import Scale9Panel from "./components/scale9";
 import type { Envelope as EnvelopeModel } from "../models/instrument";
 import { Y } from "./yascal/yascal";
-import type { Drag, Touch, TouchData } from "./input";
+import type { Drag, Touch } from "./input";
 
 interface Point {
   minX: number;
@@ -62,7 +62,7 @@ export default class Envelope extends Element {
     this.yScale = this.height / 64;
   }
 
-  onHover(data: TouchData) {
+  onHover() {
     if (!this.isDragging) {
       this.activePointIndex = -1;
       this.activePoint = null;
@@ -152,7 +152,7 @@ export default class Envelope extends Element {
     }
   }
 
-  onTouchUp(touchData: Touch) {
+  onTouchUp() {
     this.isDragging = false;
   }
 
@@ -172,7 +172,7 @@ export default class Envelope extends Element {
     this.refresh();
   }
 
-  render(internal?: boolean) {
+  render() {
     if (this.needsRendering) {
       if (this.background.width !== this.width)
         this.background.setSize(this.width, this.height);

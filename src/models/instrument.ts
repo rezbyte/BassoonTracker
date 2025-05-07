@@ -27,7 +27,7 @@ interface NoteEnvelopes {
 }
 
 export default class Instrument {
-  type: number = 0; // type = "sample";
+  type = 0; // type = "sample";
   name = "";
   instrumentIndex = 0;
   sampleIndex = -1;
@@ -79,11 +79,11 @@ export default class Instrument {
 
   sampleNumberForNotes: number[] = [];
   realLen: number | undefined;
-  filePosition: number = 0;
-  headerSize: number = 0;
-  numberOfSamples: number = 1;
-  sampleHeaderSize: number = 0;
-  reserved: number = 0;
+  filePosition = 0;
+  headerSize = 0;
+  numberOfSamples = 1;
+  sampleHeaderSize = 0;
+  reserved = 0;
 
   play(
     noteIndex: number,
@@ -295,7 +295,7 @@ export default class Instrument {
     audioNode: GainNode | StereoPannerNode,
     startTime: number,
     seconds: number,
-    scheduledTime: number = 0,
+    scheduledTime = 0,
   ): number {
     // note - this is not 100% accurate when the ticktime would change during the scheduled ahead time
     const tickTime = Tracker.getProperties().tickTime;

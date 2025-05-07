@@ -279,7 +279,7 @@ export default class AppPatternView extends Panel {
     }
   }
 
-  render(internal?: boolean) {
+  render() {
     if (!this.isVisible()) return;
 
     if (this.needsRendering) {
@@ -616,7 +616,7 @@ export default class AppPatternView extends Panel {
           }
         }
       } else {
-        let baseNotePeriod = periodNoteTable[note.period];
+        const baseNotePeriod = periodNoteTable[note.period];
         noteString = baseNotePeriod ? baseNotePeriod.name : "---";
       }
 
@@ -672,7 +672,7 @@ export default class AppPatternView extends Panel {
           noteString = this.formatHex(value, 2, "0");
         } else {
           let vuX = (value >> 4).toString(16).toUpperCase();
-          let vuY = (value & 0x0f).toString(16).toUpperCase();
+          const vuY = (value & 0x0f).toString(16).toUpperCase();
 
           const mapping: Record<string, string> = {
             5: "-",
@@ -774,7 +774,7 @@ export default class AppPatternView extends Panel {
     let ti = "" + nr;
     if (nr < 10) ti = "0" + ti;
     const charWidth = this.font.getCharWidthAsFixed();
-    let id = ti + "." + charWidth;
+    const id = ti + "." + charWidth;
 
     if (!this.lineNumberCache[id]) {
       const canvas = document.createElement("canvas");

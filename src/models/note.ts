@@ -50,13 +50,13 @@ interface NoteProperties {
   index?: number;
 }
 export default class Note {
-  period: number = 0;
-  index: number = 0;
-  effect: number = 0;
-  instrument: number = 0;
-  param: number = 0;
-  volumeEffect: number = 0;
-  note: number = 0;
+  period = 0;
+  index = 0;
+  effect = 0;
+  instrument = 0;
+  param = 0;
+  volumeEffect = 0;
+  note = 0;
 
   setPeriod(period: number) {
     this.period = period;
