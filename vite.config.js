@@ -1,5 +1,7 @@
 import { defineConfig } from "vite";
 import Spritesmith from "vite-plugin-spritesmith";
+import packageJson from "./package.json";
+
 export default defineConfig({
   plugins: [
     Spritesmith({
@@ -36,4 +38,8 @@ export default defineConfig({
       },
     }),
   ],
+  define: {
+    "import.meta.env.PACKAGE_VERSION": JSON.stringify(packageJson.version),
+    "import.meta.env.BUILD_VERSION": JSON.stringify(packageJson.version),
+  },
 });

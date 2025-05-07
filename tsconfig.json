@@ -1,0 +1,18 @@
+{
+    "include": ["src/**/*", "vite.config.ts", "./package.json"],
+    "isolatedModules": true,
+    "compilerOptions": {
+        "types": ["vite/client"],
+        "target": "ES2022",
+        "module": "ES2022",
+        "moduleResolution": "bundler",
+        "isolatedModules": true,
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true
+    },
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "display": "Recommended"
+}
