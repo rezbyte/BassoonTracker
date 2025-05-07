@@ -2,7 +2,7 @@ import BitmapFont from "./components/bitmapfont";
 import { Y } from "./yascal/yascal";
 import Tracker, { TrackerState } from "../tracker";
 import EventBus from "../eventBus";
-import { EVENT, SELECTION} from "../enum";
+import { EVENT, SELECTION } from "../enum";
 import { getUrlParameter } from "../lib/util";
 import Logger from "../log";
 import Audio from "../audio";
@@ -28,13 +28,12 @@ export interface Config {
   canvas: HTMLCanvasElement;
   baseUrl: string;
   callback: () => void;
-  plugin: object,
-  audioContext?: BaseAudioContext,
-  audioDestination?: AudioNode,
-  isMaster?: boolean,
-  handler?: (event: EVENT, value: number) => void
+  plugin: object;
+  audioContext?: BaseAudioContext;
+  audioDestination?: AudioNode;
+  isMaster?: boolean;
+  handler?: (event: EVENT, value: number) => void;
 }
-
 
 class _UI {
   private screenWidth: number = window.innerWidth;
@@ -79,7 +78,6 @@ class _UI {
   private UICache: Partial<TrackerState> = {};
   private nowFunction: () => number;
 
-  
   constructor() {
     const tracks = Number(getUrlParameter("tracks"));
     if (tracks == 8) this.maxWidth = 1200;
@@ -128,18 +126,18 @@ class _UI {
   init(next?: () => void) {
     const mainCanvas = document.getElementById("canvas");
     if (mainCanvas == null) {
-      console.error("Failed to get main canvas!")
+      console.error("Failed to get main canvas!");
       return;
     }
     if (!(mainCanvas instanceof HTMLCanvasElement)) {
-      console.error("Main canvas is not a canvas element!")
+      console.error("Main canvas is not a canvas element!");
       return;
     }
     canvas = mainCanvas;
 
     const mainContext = canvas.getContext("2d");
     if (mainContext == null) {
-      console.error("Failed to get main canvas context!")
+      console.error("Failed to get main canvas context!");
       return;
     }
     ctx = mainContext;
@@ -176,7 +174,7 @@ class _UI {
       if (debug) UI.measure("First render");
 
       // check version
-      const versionNumber = Host.getVersionNumber()
+      const versionNumber = Host.getVersionNumber();
       if (typeof versionNumber !== "undefined") {
         FetchService.json(
           "package.json?ts=" + new Date().getTime(),
@@ -184,14 +182,18 @@ class _UI {
             if (result && result.version && result.version !== versionNumber) {
               console.error("app needs updating");
 
-              const updateMessageShown = localStorage.getItem("updatemessageshown");
-              let lastMessage = updateMessageShown == null ? 0 : parseInt(updateMessageShown, 10);
+              const updateMessageShown =
+                localStorage.getItem("updatemessageshown");
+              let lastMessage =
+                updateMessageShown == null
+                  ? 0
+                  : parseInt(updateMessageShown, 10);
               if (isNaN(lastMessage)) lastMessage = 0;
 
               window.reload = function () {
                 localStorage.setItem(
                   "updatemessageshown",
-                  new Date().getTime().toString()
+                  new Date().getTime().toString(),
                 );
                 window.location.reload(true);
               };
@@ -204,14 +206,13 @@ class _UI {
                 document.body.appendChild(message);
               }
             }
-          }
+          },
         );
       }
 
       if (next) next();
     });
-  };
-
+  }
 
   initPlugin(config: Config) {
     console.log("init plugin");
@@ -221,11 +222,13 @@ class _UI {
     } else {
       const mainCanvas = document.getElementById("canvas") as HTMLCanvasElement;
       if (mainCanvas === null) {
-        console.error("Failed to get the Canvas element in order to initalize a plugin!");
+        console.error(
+          "Failed to get the Canvas element in order to initalize a plugin!",
+        );
         return;
       }
       canvas = mainCanvas;
-      
+
       let w = window.innerWidth;
 
       if (w > this.maxWidth) w = this.maxWidth;
@@ -254,7 +257,7 @@ class _UI {
       App.init();
       if (config.callback) config.callback();
     });
-  };
+  }
 
   setSize(newWidth: number, newHeight: number) {
     if (newWidth > this.maxWidth) newWidth = this.maxWidth;
@@ -272,14 +275,15 @@ class _UI {
 
       if (this.modalElement) {
         this.modalElement.setProperties({
-          width: newWidth, height: newHeight,
+          width: newWidth,
+          height: newHeight,
           left: 0,
-          top: 0
+          top: 0,
         });
       }
       this.needsRendering = true;
     }
-  };
+  }
 
   scaleToDevicePixelRatio(active: boolean) {
     this.useDevicePixelRatio = !!active;
@@ -297,12 +301,12 @@ class _UI {
     canvas.style.height = this.screenHeight + "px";
 
     this.mainPanel?.refresh();
-  };
+  }
 
   private initAssets() {
     const fontImage = Y.getImage("font");
     if (fontImage == null) {
-      console.error("Failed to load font image.")
+      console.error("Failed to load font image.");
       return;
     }
 
@@ -450,7 +454,7 @@ class _UI {
     this.mainPanel = new MainPanel();
     this.children.push(this.mainPanel);
     if (debug) UI.measure("Generate Main Panel");
-  };
+  }
 
   private render(time?: number) {
     let doRender = true;
@@ -533,16 +537,16 @@ class _UI {
     }
 
     window.requestAnimationFrame(this.render.bind(this));
-  };
+  }
 
   setModalElement(elm: ModalDialog) {
     this.modalElement = elm;
     Input.setFocusElement(elm);
-  };
+  }
 
   getModalElement() {
     return this.modalElement;
-  };
+  }
 
   removeModalElement() {
     if (this.modalElement) {
@@ -551,23 +555,23 @@ class _UI {
     this.modalElement = undefined;
     this.mainPanel?.refresh();
     this.needsRendering = true;
-  };
+  }
 
   setSelection(_selection: SelectionHandler) {
     this.selection = _selection;
     this.prevSelection = this.selection;
-  };
+  }
 
   getSelection(): SelectionHandler | undefined {
     return this.selection;
-  };
+  }
 
   clearSelection() {
     if (this.selection) {
       const doClear = this.selection(SELECTION.RESET);
       if (doClear) this.selection = undefined;
     }
-  };
+  }
 
   copySelection(andClear?: boolean) {
     if (this.selection) {
@@ -575,7 +579,7 @@ class _UI {
       if (andClear) this.selection(SELECTION.RESET);
     }
     this.selection = undefined;
-  };
+  }
 
   cutSelection(andClear?: boolean) {
     if (this.selection) {
@@ -583,14 +587,14 @@ class _UI {
       if (andClear) this.selection(SELECTION.RESET);
     }
     this.selection = undefined;
-  };
+  }
 
   deleteSelection() {
     if (this.selection) {
       this.selection(SELECTION.DELETE);
     }
     this.selection = undefined;
-  };
+  }
 
   pasteSelection(andClear: boolean = false) {
     if (!this.selection && this.prevSelection) {
@@ -602,17 +606,27 @@ class _UI {
       if (andClear) this.selection(SELECTION.RESET);
     }
     this.selection = undefined;
-  };
+  }
 
-  showContextMenu(properties:{ name: string | number, x:number, y: number, items: MenuItem[] }) {
+  showContextMenu(properties: {
+    name: string | number;
+    x: number;
+    y: number;
+    items: MenuItem[];
+  }) {
     EventBus.trigger(EVENT.showContextMenu, properties);
-  };
+  }
 
   hideContextMenu() {
     EventBus.trigger(EVENT.hideContextMenu);
-  };
+  }
 
-  showDialog(text: string, onOk?: (value: string | undefined) => void, onCancel?: () => void, useInput?: boolean) {
+  showDialog(
+    text: string,
+    onOk?: (value: string | undefined) => void,
+    onCancel?: () => void,
+    useInput?: boolean,
+  ) {
     if (this.mainPanel === null) {
       console.error("Cannot show a dialog without the main panel initalized!");
       return;
@@ -668,13 +682,13 @@ class _UI {
 
     dialog.setText(text);
     UI.setModalElement(dialog);
-  };
+  }
 
   getChildren() {
     return this.children;
-  };
+  }
 
-  getEventElement(x:number, y: number): Element | undefined {
+  getEventElement(x: number, y: number): Element | undefined {
     let target: Element | undefined = undefined;
     for (const elm of this.children) {
       if (elm.isVisible() && elm.containsPoint(x, y)) {
@@ -687,7 +701,7 @@ class _UI {
       target = target.getElementAtPoint(x, y);
     }
     return target;
-  };
+  }
 
   getInternalPoint(x: number, y: number, element: Element) {
     const offset = { left: 0, top: 0 };
@@ -697,19 +711,19 @@ class _UI {
       element = element.parent;
     }
     return { x: x - offset.left, y: y - offset.top };
-  };
+  }
 
   setLoading() {
     this.setStatus("Loading", true);
     EventBus.trigger(EVENT.songLoading);
-  };
+  }
 
   setStatus(status: string, showSpinner?: boolean) {
     EventBus.trigger(EVENT.statusChange, {
       status: status,
       showSpinner: !!showSpinner,
     });
-  };
+  }
 
   setInfo(info: string, source?: string, url?: string) {
     EventBus.trigger(EVENT.statusChange, {
@@ -717,7 +731,7 @@ class _UI {
       source: source,
       url: url,
     });
-  };
+  }
 
   stats() {
     return {
@@ -728,14 +742,14 @@ class _UI {
       fpsList: this.fpsList,
       skipRenderSteps: this.skipRenderSteps,
     };
-  };
+  }
 
   startMeasure() {
     if (Audio.context) {
       this.beginMeasure = Audio.context.currentTime;
       this.currentMeasure = this.beginMeasure;
     }
-  };
+  }
 
   measure(message: string) {
     if (Audio.context) {
@@ -743,42 +757,42 @@ class _UI {
       this.currentMeasure = Audio.context.currentTime;
       console.warn(message + ": " + time);
     }
-  };
+  }
 
   endMeasure() {
     if (Audio.context) {
       this._endMeasure = (Audio.context.currentTime - this.beginMeasure) * 1000;
       if (debug) console.warn("Total time: " + this._endMeasure);
     }
-  };
+  }
 
   getAverageFps(): number {
     return this.fpsList.length > 2 ? this.average(this.fpsList) : 60;
-  };
+  }
 
   resetAverageFps() {
     const last = this.fpsList.pop();
     this.fpsList = last ? [last] : [];
-  };
+  }
 
   skipFrame(value: number) {
     console.log("Setting SkipFrame to " + value);
     this.skipRenderSteps = value;
     Settings.skipFrame = value;
     EventBus.trigger(EVENT.skipFrameChanged, this.skipRenderSteps);
-  };
+  }
 
   getSkipFrame() {
     return this.skipRenderSteps;
-  };
+  }
 
   playRandomSong(format?: string) {
     if (this.mainPanel == null) {
-      console.error("Need to initalize the UI before playing a random song!")
-      return
+      console.error("Need to initalize the UI before playing a random song!");
+      return;
     }
     this.mainPanel.getDiskOperations().playRandomSong(format);
-}
+  }
 
   private average(arr: number[]): number {
     if (!arr.length) return 0;
@@ -787,7 +801,6 @@ class _UI {
     for (let i = 0; i < max; i++) total += arr[i];
     return total / max;
   }
-
-};
+}
 
 export const UI = new _UI();

@@ -43,7 +43,7 @@ export default class FastTracker implements FileFormat {
     const defaultBPM = file.readWord();
 
     console.log(
-      "File was made in " + trackerName + " version " + trackerVersion
+      "File was made in " + trackerName + " version " + trackerVersion,
     );
 
     const patternTable: number[] = Array(songlength);
@@ -124,7 +124,7 @@ export default class FastTracker implements FileFormat {
           // sample header should be at least 40 bytes
           instrument.sampleHeaderSize = Math.max(
             instrument.sampleHeaderSize,
-            40
+            40,
           );
 
           // and not too much ... (Files saved with sk@letracker)
@@ -182,10 +182,10 @@ export default class FastTracker implements FileFormat {
           }
 
           instrument.volumeEnvelope = processEnvelope(
-            instrument.volumeEnvelope
+            instrument.volumeEnvelope,
           );
           instrument.panningEnvelope = processEnvelope(
-            instrument.panningEnvelope
+            instrument.panningEnvelope,
           );
         }
       } catch (e) {
@@ -250,7 +250,7 @@ export default class FastTracker implements FileFormat {
               sample.length +
               (sample.bits === 16 ? " words" : " bytes") +
               " and repeat length of " +
-              sample.loop.length
+              sample.loop.length,
           );
           const sampleEnd = sample.length;
 
@@ -279,12 +279,12 @@ export default class FastTracker implements FileFormat {
             // TODO: keep original sample?
             const loopPart = sample.data.slice(
               sample.loop.start,
-              sample.loop.start + sample.loop.length
+              sample.loop.start + sample.loop.length,
             );
 
             sample.data = sample.data.slice(
               0,
-              sample.loop.start + sample.loop.length
+              sample.loop.start + sample.loop.length,
             );
             sample.data = sample.data.concat(loopPart.reverse());
             sample.loop.length = sample.loop.length * 2;
@@ -298,7 +298,10 @@ export default class FastTracker implements FileFormat {
       instrument.setSampleIndex(0);
 
       Tracker.setInstrument(i, instrument);
-      instrumentContainer[i - 1] = { label: i + " " + instrument.name, data: i };
+      instrumentContainer[i - 1] = {
+        label: i + " " + instrument.name,
+        data: i,
+      };
     }
     EventBus.trigger(EVENT.instrumentListChange, instrumentContainer); // TODO: Move this and related statements into calling function in Tracker
     const instruments = Tracker.getInstruments();
@@ -319,21 +322,22 @@ export default class FastTracker implements FileFormat {
     this.validate(song);
 
     return song;
-  };
+  }
 
   // build internal
   //<!--
   write(next?: (file: BinaryStream) => void) {
     const song = Tracker.getSong();
     if (song == null) {
-      console.error("Cannot write to a fasttracker XM without a song loaded!")
+      console.error("Cannot write to a fasttracker XM without a song loaded!");
       return;
     }
     const instruments = Tracker.getInstruments(); // note: intruments start at index 1, not 0
     const trackCount = Tracker.getTrackCount();
 
-    const versionNumber = Host.getVersionNumber()
-    const version = typeof versionNumber === "undefined" ? "dev" : versionNumber;
+    const versionNumber = Host.getVersionNumber();
+    const version =
+      typeof versionNumber === "undefined" ? "dev" : versionNumber;
 
     let highestPattern = 0;
     for (let i = 0; i < 128; i++) {
@@ -555,7 +559,7 @@ export default class FastTracker implements FileFormat {
     }
 
     if (next) next(file);
-  };
+  }
   //-->
 
   validate(song: Song) {
@@ -597,11 +601,11 @@ export default class FastTracker implements FileFormat {
                 [50, 18],
               ],
               count: 6,
-              loop: false, 
-	            loopStartPoint: 0, 
-	            loopEndPoint: 0, 
-              sustain: false, 
-              sustainPoint: 0
+              loop: false,
+              loopStartPoint: 0,
+              loopEndPoint: 0,
+              sustain: false,
+              sustainPoint: 0,
             }
           : {
               type: 0,
@@ -615,11 +619,11 @@ export default class FastTracker implements FileFormat {
                 [80, 32],
               ],
               count: 5,
-              loop: false, 
-	            loopStartPoint: 0, 
-	            loopEndPoint: 0, 
-              sustain: false, 
-              sustainPoint: 0
+              loop: false,
+              loopStartPoint: 0,
+              loopEndPoint: 0,
+              sustain: false,
+              sustainPoint: 0,
             };
       }
     }
@@ -628,11 +632,11 @@ export default class FastTracker implements FileFormat {
       // check envelope
       instrument.volumeEnvelope = checkEnvelope(
         instrument.volumeEnvelope,
-        "volume"
+        "volume",
       );
       instrument.panningEnvelope = checkEnvelope(
         instrument.panningEnvelope,
-        "panning"
+        "panning",
       );
 
       // check sampleIndexes;
@@ -644,9 +648,9 @@ export default class FastTracker implements FileFormat {
       ) {
         instrument.sampleNumberForNotes[i] = Math.min(
           instrument.sampleNumberForNotes[i],
-          maxSampleIndex
+          maxSampleIndex,
         );
       }
     });
-  };
-};
+  }
+}

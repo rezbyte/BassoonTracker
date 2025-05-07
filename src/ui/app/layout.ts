@@ -54,7 +54,7 @@ class Layout {
   showSideBar: boolean = false;
   firstTrackOffsetLeft: number = 0;
   expandSampleViewHeight: boolean = false;
-  
+
   setLayout(w?: number, h?: number) {
     this.width = w || this.width;
     this.height = h || this.height;
@@ -154,7 +154,7 @@ class Layout {
       this.controlPanelButtonsLeft = this.col1X;
       this.controlPanelButtonsWidth = this.col5W;
       this.controlPanelButtonsButton = Math.floor(
-        this.controlPanelButtonsWidth / 3
+        this.controlPanelButtonsWidth / 3,
       );
 
       this.modeButtonsLeft =
@@ -188,7 +188,7 @@ class Layout {
     if (this.trackWidth < 125) {
       this.firstTrackOffsetLeft = 18;
       this.trackWidth = Math.floor(
-        (totalWidth - margins - this.firstTrackOffsetLeft) / this.visibleTracks
+        (totalWidth - margins - this.firstTrackOffsetLeft) / this.visibleTracks,
       );
     }
     const minTrackWidth = Tracker.inFTMode() ? 100 : 78;
@@ -196,12 +196,12 @@ class Layout {
       this.trackFont = UI.fontSuperCondensed;
       this.useCondensedTrackFont = true;
     }
-  };
+  }
 
   setVisibleTracks(count: number) {
     this.visibleTracks = count;
     this.setLayout();
     EventBus.trigger(EVENT.visibleTracksCountChange, count);
-  };
+  }
 }
 export default new Layout();

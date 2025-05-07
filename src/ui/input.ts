@@ -2,49 +2,62 @@ import EventBus from "../eventBus";
 import Tracker, { Effects } from "../tracker";
 import { FTNotes } from "../tracker";
 import Editor from "../editor";
-import { EVENT, KEYBOARDTABLE, NOTEPERIOD, OCTAVENOTES, TRACKERMODE} from "../enum";
+import {
+  EVENT,
+  KEYBOARDTABLE,
+  NOTEPERIOD,
+  OCTAVENOTES,
+  TRACKERMODE,
+} from "../enum";
 import { NoteInfo } from "../models/note";
 import Audio from "../audio";
-import Element from "./components/element"
+import Element from "./components/element";
 import { canvas, UI } from "./main";
 import App from "../app";
 import Menu from "./components/menu";
 import Settings from "../settings";
 
 export interface Touch {
-  id: string,
-  x: number,
-  y: number,
-  startX: number,
-  startY: number,
-  globalX: number,
-  globalY: number,
-  globalStartX: number,
-  globalStartY: number,
-  UIobject: Element | undefined,
-  isMeta: boolean
+  id: string;
+  x: number;
+  y: number;
+  startX: number;
+  startY: number;
+  globalX: number;
+  globalY: number;
+  globalStartX: number;
+  globalStartY: number;
+  UIobject: Element | undefined;
+  isMeta: boolean;
 }
 
 export interface Drag extends Touch {
-  deltaX: number,
-  deltaY: number,
-  dragX: number,
-  dragY: number
+  deltaX: number;
+  deltaY: number;
+  dragX: number;
+  dragY: number;
 }
 
 export interface TouchData {
-  touches: (Touch | Drag)[], 
-  mouseWheels: number[], 
-  currentMouseX: number | undefined, 
-  currentMouseY: number | undefined,
+  touches: (Touch | Drag)[];
+  mouseWheels: number[];
+  currentMouseX: number | undefined;
+  currentMouseY: number | undefined;
   mouseMoved: number | undefined;
-  isTouchDown: boolean
+  isTouchDown: boolean;
 }
 
 export const DEFAULT_OCTAVE = 2;
 
 class Input {
-  private touchData: TouchData = {touches: [], mouseWheels: [], currentMouseX: undefined, currentMouseY: undefined, mouseMoved: undefined, isTouchDown: false};
+  private touchData: TouchData = {
+    touches: [],
+    mouseWheels: [],
+    currentMouseX: undefined,
+    currentMouseY: undefined,
+    mouseMoved: undefined,
+    isTouchDown: false,
+  };
   private focusElement: Element | undefined;
   private currentEventTarget: Element | undefined;
   private resizeTimer = 0;
@@ -66,7 +79,7 @@ class Input {
       if (!Audio.context) return;
       const time = Audio.context.currentTime;
       const delay = 2;
-  
+
       this.inputNotes.forEach(function (note: NoteInfo) {
         if (note && note.time && note.scheduled) {
           if (note.scheduled.volume && note.volumeEnvelope) {
@@ -75,30 +88,33 @@ class Input {
                 const scheduledtime = note.instrument.scheduleEnvelopeLoop(
                   note.volumeEnvelope,
                   note.scheduled.volume,
-                  2
+                  2,
                 );
                 note.scheduled.volume += scheduledtime;
               }
             }
           }
-  
+
           if (note.scheduled.panning && note.panningEnvelope) {
             if (time + delay >= note.scheduled.panning) {
               if (note.instrument) {
                 const scheduledtime = note.instrument.scheduleEnvelopeLoop(
                   note.panningEnvelope,
                   note.scheduled.panning,
-                  2
+                  2,
                 );
                 note.scheduled.panning += scheduledtime;
               }
             }
           }
-  
+
           if (note.scheduled.vibrato) {
             if (time + delay >= note.scheduled.vibrato) {
               if (note.instrument) {
-                const scheduledtime = note.instrument.scheduleAutoVibrato(note, 2);
+                const scheduledtime = note.instrument.scheduleAutoVibrato(
+                  note,
+                  2,
+                );
                 note.scheduled.vibrato += scheduledtime;
               }
             }
@@ -106,7 +122,7 @@ class Input {
         }
       });
     });
-  
+
     EventBus.on(EVENT.trackerModeChanged, (mode: TRACKERMODE) => {
       if (Tracker.inFTMode()) {
         this.maxOctave = 7;
@@ -116,7 +132,10 @@ class Input {
         this.maxOctave = 3;
         this.minOctave = 1;
         this.setCurrentOctave(
-          Math.min(Math.max(this.currentOctave - 2, this.minOctave), this.maxOctave)
+          Math.min(
+            Math.max(this.currentOctave - 2, this.minOctave),
+            this.maxOctave,
+          ),
         );
       }
     });
@@ -176,7 +195,11 @@ class Input {
         }
       }
 
-      if (window.TouchEvent && event instanceof TouchEvent && event.touches.length > 0) {
+      if (
+        window.TouchEvent &&
+        event instanceof TouchEvent &&
+        event.touches.length > 0
+      ) {
         const touches = event.changedTouches;
         for (const touch of touches) {
           initTouch(touch.identifier.toString(), touch.pageX, touch.pageY);
@@ -212,8 +235,12 @@ class Input {
           me.focusElement.deActivate(me.currentEventTarget);
         }
 
-        const touchX = me.currentEventTarget ? me.currentEventTarget.eventX ?? x : x;
-        const touchY = me.currentEventTarget ? me.currentEventTarget.eventY ?? y : y;
+        const touchX = me.currentEventTarget
+          ? (me.currentEventTarget.eventX ?? x)
+          : x;
+        const touchY = me.currentEventTarget
+          ? (me.currentEventTarget.eventY ?? y)
+          : y;
 
         const thisTouch: Touch = {
           id: id,
@@ -247,7 +274,11 @@ class Input {
       event.preventDefault();
       const rect = canvas.getBoundingClientRect();
 
-      if (window.TouchEvent && event instanceof TouchEvent && event.touches.length > 0) {
+      if (
+        window.TouchEvent &&
+        event instanceof TouchEvent &&
+        event.touches.length > 0
+      ) {
         const touches = event.changedTouches;
 
         for (let i = 0; i < touches.length; i++) {
@@ -255,7 +286,7 @@ class Input {
           updateTouch(
             me.getTouchIndex(touch.identifier.toString()),
             touch.pageX - rect.left,
-            touch.pageY - rect.top
+            touch.pageY - rect.top,
           );
         }
       } else if (event instanceof MouseEvent) {
@@ -337,7 +368,8 @@ class Input {
           let clearSelection = true;
           if (thisTouch.UIobject) {
             const elm = thisTouch.UIobject;
-            if (elm instanceof Menu && elm.keepSelection) clearSelection = false;
+            if (elm instanceof Menu && elm.keepSelection)
+              clearSelection = false;
 
             if (distance < 8 && elm.onClick) {
               elm.onClick(thisTouch);
@@ -366,7 +398,7 @@ class Input {
       }
     }
 
-    function handleKeyDown(event: KeyboardEvent & {keyIdentifier?: string}) {
+    function handleKeyDown(event: KeyboardEvent & { keyIdentifier?: string }) {
       event.preventDefault();
 
       const keyboardTable =
@@ -383,7 +415,8 @@ class Input {
         alt: event.altKey,
         command: event.metaKey,
       };
-      me._isMetaKeyDown = meta.command || meta.control || meta.alt || meta.shift;
+      me._isMetaKeyDown =
+        meta.command || meta.control || meta.alt || meta.shift;
 
       if (!key && event.keyIdentifier) {
         // safari on osX ...
@@ -452,7 +485,8 @@ class Input {
         case 32: // space
           Tracker.toggleRecord();
           return;
-        case 33: { // pageup
+        case 33: {
+          // pageup
           let step = Math.floor(Tracker.getPatternLength() / 4);
           if (step === 0) step = 1;
           let pos = Math.floor(Tracker.getCurrentPatternPos() / step) * step;
@@ -461,7 +495,8 @@ class Input {
           Tracker.setCurrentPatternPos(pos);
           return;
         }
-        case 34: { // pagedown
+        case 34: {
+          // pagedown
           let step = Math.floor(Tracker.getPatternLength() / 4);
           if (step === 0) step = 1;
           let pos = Math.ceil(Tracker.getCurrentPatternPos() / step) * step;
@@ -489,7 +524,8 @@ class Input {
         case 40: // down
           Tracker.moveCurrentPatternPos(1);
           return;
-        case 46: { // delete
+        case 46: {
+          // delete
           if (Tracker.getIsRecording()) {
             const pos = Editor.getCurrentTrackPosition();
             if (pos === 0) {
@@ -564,7 +600,7 @@ class Input {
       }
     }
 
-    function handleKeyUp(event: KeyboardEvent & {keyIdentifier?: string}) {
+    function handleKeyUp(event: KeyboardEvent & { keyIdentifier?: string }) {
       let key = event.key;
 
       if (!key && event.keyIdentifier) {
@@ -601,7 +637,8 @@ class Input {
           const deltaX = event.deltaX || 0;
 
           me.touchData.mouseWheels.unshift(deltaY);
-          if (me.touchData.mouseWheels.length > 10) me.touchData.mouseWheels.pop();
+          if (me.touchData.mouseWheels.length > 10)
+            me.touchData.mouseWheels.pop();
 
           target.onMouseWheel(me.touchData);
         }
@@ -624,7 +661,7 @@ class Input {
 
       const dt = e.dataTransfer;
       if (dt == null) return;
-      
+
       const files = dt.files;
 
       Tracker.handleUpload(files);
@@ -671,7 +708,7 @@ class Input {
     }
 
     handleResize();
-  };
+  }
 
   getTouchIndex(id: string): number {
     for (let i = 0; i < this.touchData.touches.length; i++) {
@@ -680,7 +717,7 @@ class Input {
       }
     }
     return -1;
-  };
+  }
 
   setFocusElement(element: Element) {
     const name = element.name || element.type;
@@ -698,16 +735,16 @@ class Input {
       console.log("setting focus to " + name);
     } else {
       console.warn(
-        "Warning: setting focus to an unnamed element can cause unexpected results"
+        "Warning: setting focus to an unnamed element can cause unexpected results",
       );
     }
     //if (element.activate) element.activate();
-  };
+  }
   clearFocusElement(element?: Element) {
     if (element) {
       if (!element.name)
         console.warn(
-          "Please specify a name for the target object when removing focus"
+          "Please specify a name for the target object when removing focus",
         );
       const name = element.name || element.type;
       if (name) console.log("removing focus from " + name);
@@ -716,13 +753,14 @@ class Input {
         this.focusElement = undefined;
       }
     } else {
-      if (this.focusElement && this.focusElement.deActivate) this.focusElement.deActivate();
+      if (this.focusElement && this.focusElement.deActivate)
+        this.focusElement.deActivate();
       this.focusElement = undefined;
     }
-  };
+  }
   getFocusElement(): Element | undefined {
     return this.focusElement;
-  };
+  }
 
   private clearInputNote() {
     // stops the oldest input note
@@ -738,22 +776,22 @@ class Input {
 
   clearInputNotes() {
     while (this.inputNotes.length) this.clearInputNote();
-  };
+  }
 
   getCurrentOctave(): number {
     return this.currentOctave;
-  };
+  }
 
   setCurrentOctave(value: number) {
     if (value <= this.maxOctave && value >= this.minOctave) {
       this.currentOctave = value;
       EventBus.trigger(EVENT.octaveChanged, this.currentOctave);
     }
-  };
+  }
 
   // handles the input for an indexed note
   handleNoteOn(index: number, key?: string, offset?: number, volume?: number) {
-    let note: {period: number, index: number | null} | null = null;
+    let note: { period: number; index: number | null } | null = null;
     let doPlay = true;
 
     if (index >= 0) {
@@ -788,7 +826,7 @@ class Input {
           if (notePeriod) {
             note = {
               period: notePeriod.period,
-              index: null
+              index: null,
             };
           }
         }
@@ -883,7 +921,7 @@ class Input {
             Tracker.getCurrentInstrumentIndex(),
             note.period,
             note.index ?? undefined,
-            volume
+            volume,
           );
 
           if (Tracker.isPlaying()) {
@@ -928,14 +966,14 @@ class Input {
           note.period,
           volume,
           undefined,
-          effects
+          effects,
         );
         if (playedNote === null) {
           console.error("Failed to play note from input!");
-          return
+          return;
         }
         playedNote.instrument = instrument;
-        playedNote.isKey = true; 
+        playedNote.isKey = true;
 
         this.keyDown[index] = playedNote;
         this.inputNotes.push(playedNote);
@@ -951,7 +989,7 @@ class Input {
         EventBus.trigger(EVENT.pianoNoteOn, index);
       }
     }
-  };
+  }
 
   handleNoteOff(index: number, register: boolean = false) {
     if (
@@ -965,7 +1003,7 @@ class Input {
         if (this.keyDown[index].instrument) {
           this.keyDown[index].instrument.noteOff(
             Audio.context.currentTime,
-            this.keyDown[index]
+            this.keyDown[index],
           );
         } else {
           this.keyDown[index].source.stop();
@@ -984,16 +1022,15 @@ class Input {
       Editor.putNoteParam(5, 20);
       Editor.putNoteParam(7, 1);
     }
-  };
+  }
 
   isMetaKeyDown(): boolean {
     return this._isMetaKeyDown;
-  };
+  }
 
   getPrevIndex(): number {
     return this.prevIndex;
-  };
-
-};
+  }
+}
 
 export default new Input();

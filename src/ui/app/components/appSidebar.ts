@@ -26,12 +26,13 @@ export default class AppSidebar extends Panel {
   private playlistActive: boolean;
   private listbox: ListBox;
 
-  constructor() { // UI.app_sidebar
-    super(0, 0, 200, 200)
+  constructor() {
+    // UI.app_sidebar
+    super(0, 0, 200, 200);
     this.setProperties({
       name: "sideBar",
     });
-  
+
     this.background = new Scale9Panel(0, 0, this.width, this.height, {
       img: Y.getImage("background"),
       left: 3,
@@ -41,31 +42,31 @@ export default class AppSidebar extends Panel {
     });
     this.background.ignoreEvents = true;
     this.addChild(this.background);
-  
+
     this.sideLabel = new Label();
     this.sideLabel.setProperties({
       label: "Playlist:",
       font: UI.fontFT,
     });
     this.addChild(this.sideLabel);
-  
+
     this.toggleButton = Assets.generate("buttonKey");
     this.addChild(this.toggleButton);
-  
+
     this.toggleButton.onClick = function () {
       App.doCommand(COMMAND.toggleAppSideBar);
     };
-  
+
     this.skipButton = Assets.generate("buttonKey");
     this.skipButton.setLabel("Next");
     this.skipButton.onClick = () => {
       this.next();
     };
-  
+
     this.toggleUIButton = Assets.generate("buttonKey");
     this.toggleUIButton.setLabel("Toggle UI");
     this.toggleUIButton.onClick = function () {};
-  
+
     this.playlistControlPanel = new Scale9Panel(0, 0, this.width, this.height, {
       img: Y.getImage("background"),
       left: 3,
@@ -75,31 +76,35 @@ export default class AppSidebar extends Panel {
     });
     this.playlistControlPanel.ignoreEvents = true;
     this.addChild(this.playlistControlPanel);
-  
+
     this.addChild(this.skipButton);
     this.addChild(this.toggleUIButton);
-  
+
     this.listbox = new ListBox(2, 50, 100, 100);
     this.listbox.setProperties({
       font: UI.fontFT,
     });
     this.addChild(this.listbox);
-  
+
     this.playlist = [
       { label: "Demomusic", url: "/demomods/demomusic.mod", index: 0 },
-      { label: "Stardust Memories", url: "/demomods/StardustMemories.mod", index: 1  },
-      { label: "Space Debry", url: "/demomods/spacedeb.mod", index: 2  },
+      {
+        label: "Stardust Memories",
+        url: "/demomods/StardustMemories.mod",
+        index: 1,
+      },
+      { label: "Space Debry", url: "/demomods/spacedeb.mod", index: 2 },
     ];
-  
+
     this.playListIndex = 0;
     this.playlistActive = false;
-  
+
     this.listbox.onChange = function () {
       //console.error(v);
     };
     this.listbox.onClick = () => {
       const eventX = this.listbox.eventX;
-      if(eventX === undefined) {
+      if (eventX === undefined) {
         console.error("AppSidebar listbox expected eventX to be processed!");
         return;
       }
@@ -111,16 +116,16 @@ export default class AppSidebar extends Panel {
 
       const item = this.listbox.getItemAtPosition(eventX, eventY);
       if (item && item.url) {
-       this.playListPlaySong(item.index);
+        this.playListPlaySong(item.index);
       }
     };
-    EventBus.on(EVENT.songEnd,  () => {
+    EventBus.on(EVENT.songEnd, () => {
       this.next();
     });
-  
+
     this.onResize = this._onResize.bind(this);
     this.onResize();
-  
+
     const playlistPath = Host.getBaseUrl() + "/demomods/Playlist/";
     FetchService.get(playlistPath + "list.txt", (list) => {
       if (list === undefined) {
@@ -129,7 +134,8 @@ export default class AppSidebar extends Panel {
       }
       const splitList = list.split("\n");
       splitList.forEach((item, index) => {
-        if (item) this.playlist.push({ label: item, url: playlistPath + item, index });
+        if (item)
+          this.playlist.push({ label: item, url: playlistPath + item, index });
       });
 
       this.playListIndex = 0;
@@ -137,7 +143,7 @@ export default class AppSidebar extends Panel {
       this.listbox.setItems(this.playlist);
     });
   }
-  
+
   _onResize() {
     this.background.setSize(this.width, this.height);
     this.toggleButton.setPosition(this.width - 22, 2);
@@ -177,7 +183,7 @@ export default class AppSidebar extends Panel {
       this.playlistControlPanel.show();
       this.listbox.show();
     }
-  };
+  }
 
   private playListPlaySong(index: number) {
     const item = this.playlist[index];
@@ -200,4 +206,4 @@ export default class AppSidebar extends Panel {
       this.playListPlaySong(this.playListIndex);
     }
   }
-} 
+}

@@ -5,7 +5,6 @@ import Input from "../ui/input";
 import Settings from "../settings";
 
 class Midi {
-
   private enabled: boolean = false;
 
   init() {
@@ -37,20 +36,20 @@ class Midi {
       console.warn("Midi not supported");
       return false;
     }
-  };
+  }
 
   enable() {
     this.init();
-  };
+  }
 
   disable() {
     this.enabled = false;
     EventBus.trigger(EVENT.midiIn);
-  };
+  }
 
   isEnabled(): boolean {
     return !!this.enabled;
-  };
+  }
 
   private getMIDIMessage(midiMessage: MIDIMessageEvent) {
     if (!this.enabled) return;
@@ -122,7 +121,6 @@ class Midi {
     const register = Settings.midi === "enabled";
     Input.handleNoteOff(key + octave * 12, register);
   }
-
-};
+}
 
 export default new Midi();

@@ -1,4 +1,4 @@
-import {COMMAND,  EVENT, VIEW} from "./enum";
+import { COMMAND, EVENT, VIEW } from "./enum";
 import Host from "./host";
 import EventBus from "./eventBus";
 import Tracker from "./tracker";
@@ -8,14 +8,17 @@ import { ModalDialog } from "./ui/components/modalDialog";
 import { UI } from "./ui/main";
 import Settings from "./settings";
 
-declare class Stats { // from src/plugins/stats.js
+declare class Stats {
+  // from src/plugins/stats.js
   dom: Node;
   update(): void;
-} 
+}
 
 class app {
-
-  readonly buildNumber: string = typeof import.meta.env.PACKAGE_VERSION === "undefined" ? "" : import.meta.env.PACKAGE_VERSION;
+  readonly buildNumber: string =
+    typeof import.meta.env.PACKAGE_VERSION === "undefined"
+      ? ""
+      : import.meta.env.PACKAGE_VERSION;
   isPlugin: boolean = false;
 
   init() {
@@ -78,7 +81,9 @@ class app {
           break;
         case COMMAND.showAbout:
           if (UI.mainPanel == null) {
-            console.error("Could not show the About modal because the main panel has not been initalized!");
+            console.error(
+              "Could not show the About modal because the main panel has not been initalized!",
+            );
             break;
           }
           const dialog = new ModalDialog();
@@ -96,7 +101,7 @@ class app {
           dialog.setText(
             "BassoonTracker//Old School Amiga MOD and XM tracker/in plain javascript//©2017-2021 by Steffest//version " +
               version +
-              "//Fork me on Github!"
+              "//Fork me on Github!",
           );
 
           UI.setModalElement(dialog);
@@ -118,7 +123,6 @@ class app {
           if (!stats) {
             const script = document.createElement("script");
             script.onload = function () {
-             
               const stats = new Stats();
               document.body.appendChild(stats.dom);
               requestAnimationFrame(function loop() {
@@ -165,12 +169,11 @@ class app {
           break;
       }
     });
-  };
+  }
 
   doCommand(command: COMMAND) {
     EventBus.trigger(EVENT.command, command);
-  };
-
-};
+  }
+}
 
 export default new app();

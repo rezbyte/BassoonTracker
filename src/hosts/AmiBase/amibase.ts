@@ -28,81 +28,97 @@
 
 import { Message } from "../hostbridge";
 
-
 interface MenuItem {
-    label: string,
-    message?: string,
-    items?: MenuItem[]
+  label: string;
+  message?: string;
+  items?: MenuItem[];
 }
 
 class AmiBase {
-    private isAmiBased = false;
-    private windowId: string | null = null;
-    private menu: MenuItem[] | null = null;
-    private messageHandler: ((data: any, event: MessageEvent) => void) | null = null;
+  private isAmiBased = false;
+  private windowId: string | null = null;
+  private menu: MenuItem[] | null = null;
+  private messageHandler: ((data: any, event: MessageEvent) => void) | null =
+    null;
 
-    init(onRegistered: (success: boolean) => void) {
-        let messageTimeOut: number;
-        if (window.self !== window.top && window.parent){
-            window.parent.postMessage({
-                command: "register",
-                url: window.location.href
-            },"*");
-            messageTimeOut = setTimeout(function(){
-                if (onRegistered) onRegistered(false);
-            },500);
-        }else{
-            if (onRegistered) onRegistered(false);
+  init(onRegistered: (success: boolean) => void) {
+    let messageTimeOut: number;
+    if (window.self !== window.top && window.parent) {
+      window.parent.postMessage(
+        {
+          command: "register",
+          url: window.location.href,
+        },
+        "*",
+      );
+      messageTimeOut = setTimeout(function () {
+        if (onRegistered) onRegistered(false);
+      }, 500);
+    } else {
+      if (onRegistered) onRegistered(false);
+    }
+
+    window.addEventListener(
+      "message",
+      (event) => {
+        //console.warn(event);
+        if (event && event.data) {
+          if (event.data.registered) {
+            clearTimeout(messageTimeOut);
+            this.windowId = event.data.id;
+            this.isAmiBased = true;
+            if (onRegistered) onRegistered(true);
+            if (this.menu) this.setMenu(this.menu);
+          } else {
+            if (this.messageHandler) this.messageHandler(event.data, event);
+          }
         }
+      },
+      false,
+    );
+  }
 
-        window.addEventListener("message", (event) => {
-            //console.warn(event);
-            if (event && event.data){
-                if (event.data.registered){
-                    clearTimeout(messageTimeOut);
-                    this.windowId = event.data.id;
-                    this.isAmiBased = true;
-                    if (onRegistered) onRegistered(true);
-                    if (this.menu) this.setMenu(this.menu);
-                }else{
-                    if (this.messageHandler) this.messageHandler(event.data,event);
-                }
-            }
-        }, false);
-    };
+  iAmReady() {
+    if (this.isAmiBased) {
+      window.parent.postMessage(
+        {
+          command: "ready",
+          windowId: this.windowId,
+        },
+        "*",
+      );
+    }
+  }
 
-    iAmReady() {
-        if (this.isAmiBased){
-            window.parent.postMessage({
-                command: "ready",
-                windowId: this.windowId
-            },"*");
-        }
-    };
+  focus() {
+    if (this.isAmiBased) {
+      window.parent.postMessage(
+        {
+          command: "focus",
+          windowId: this.windowId,
+        },
+        "*",
+      );
+    }
+  }
 
-    focus() {
-        if (this.isAmiBased){
-            window.parent.postMessage({
-                command: "focus",
-                windowId: this.windowId
-            },"*");
-        }
-    };
+  setMenu(_menu: MenuItem[]) {
+    this.menu = _menu;
+    if (this.isAmiBased) {
+      window.parent.postMessage(
+        {
+          command: "setMenu",
+          windowId: this.windowId,
+          data: this.menu,
+        },
+        "*",
+      );
+    }
+  }
 
-    setMenu(_menu: MenuItem[]) {
-        this.menu = _menu;
-        if (this.isAmiBased){
-            window.parent.postMessage({
-                command: "setMenu",
-                windowId: this.windowId,
-                data: this.menu
-            },"*");
-        }
-    };
-
-    setMessageHandler(handler: (data: Message, event: MessageEvent) => void) {
-        this.messageHandler = handler;
-    };
-};
+  setMessageHandler(handler: (data: Message, event: MessageEvent) => void) {
+    this.messageHandler = handler;
+  }
+}
 
 export default new AmiBase();

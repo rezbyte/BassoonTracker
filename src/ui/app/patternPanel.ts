@@ -25,8 +25,9 @@ export default class AppPatternPanel extends AppPanelContainer {
   private patternView: AppPatternView;
   private sampleView: SampleView;
   //private visibleTracks: number = 0;
-  
-  constructor() { // UI.app_patternPanel
+
+  constructor() {
+    // UI.app_patternPanel
     super(80);
     this.trackControls = [];
     const maxVisibleTracks = 4;
@@ -42,19 +43,20 @@ export default class AppPatternPanel extends AppPanelContainer {
       this.trackControls[i] = new TrackControl();
       this.addChild(this.trackControls[i]);
     }
-    
+
     this.visualiser = new Visualiser();
     this.visualiser.connect(Audio.getCutOffVolume());
     this.visualiser.name = "mainAnalyser";
 
     this.scopesClickHandler = new Element();
-    this.scopesClickHandler.render = (internal?: boolean) => {return undefined};
+    this.scopesClickHandler.render = (internal?: boolean) => {
+      return undefined;
+    };
     this.scopesClickHandler.onClick = (touchData) => {
       this.visualiser.onClick(touchData);
     };
     this.addChild(this.scopesClickHandler);
 
-    
     this.patternSidebar = new PatternSidebar();
     this.addChild(this.patternSidebar);
 
@@ -85,7 +87,7 @@ export default class AppPatternPanel extends AppPanelContainer {
       this.patternView.refresh();
     });
 
-    EventBus.on(EVENT.trackStateChange,(state: TrackStateChangeValue) => {
+    EventBus.on(EVENT.trackStateChange, (state: TrackStateChangeValue) => {
       // set other tracks to mute if a track is soloed
 
       if (typeof state.track != "undefined") {
@@ -144,9 +146,9 @@ export default class AppPatternPanel extends AppPanelContainer {
           break;
         case VIEW.bottomMain:
         case VIEW.main:
-         this.sampleView.hide();
-         this.patternView.show();
-         this.visualiser.show();
+          this.sampleView.hide();
+          this.patternView.show();
+          this.visualiser.show();
           if (Layout.showSideBar) {
             this.patternSidebar.show();
             this.editPanel.show();
@@ -257,14 +259,14 @@ export default class AppPatternPanel extends AppPanelContainer {
     });
 
     this.setTrackControlsLayout();
-  };
-  
+  }
+
   private setTrackControlsLayout() {
     // controlBar
     const startTrack = this.patternView.getStartTrack();
     const endTrack = Math.min(
       startTrack + Layout.visibleTracks,
-      Tracker.getTrackCount()
+      Tracker.getTrackCount(),
     );
 
     const isVisible = !(

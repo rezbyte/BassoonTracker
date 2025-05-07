@@ -3,16 +3,16 @@ import Host from "./host";
 type Next<T> = (param?: T, xhr?: XMLHttpRequest) => void;
 
 type Config<T> = {
-  method?: string
-  url: string
-  cache?: boolean
-  data?: Document | XMLHttpRequestBodyInit | null
-  datatype?: string
-  headers?: { key: string, value: string }[]
-  timeout?: number
-  success: (data: T) => void
-  error: (xhr: XMLHttpRequest) => void
-}
+  method?: string;
+  url: string;
+  cache?: boolean;
+  data?: Document | XMLHttpRequestBodyInit | null;
+  datatype?: string;
+  headers?: { key: string; value: string }[];
+  timeout?: number;
+  success: (data: T) => void;
+  error: (xhr: XMLHttpRequest) => void;
+};
 
 class FetchService {
   // somewhat Jquery syntax compatible for easy portability

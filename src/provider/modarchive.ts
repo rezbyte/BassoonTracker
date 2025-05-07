@@ -1,92 +1,96 @@
-
 import FetchService from "../fetchService";
 import { formatFileSize } from "../lib/util";
 import type { ListBoxItem } from "../ui/components/listbox";
 
 interface Artist {
-  id: number,
-  count: number,
-  handle: string
+  id: number;
+  count: number;
+  handle: string;
 }
 
 interface Genre {
-  id: number,
-  count: number,
-  name: string,
-  parent: number
+  id: number;
+  count: number;
+  name: string;
+  parent: number;
 }
 
 interface Module {
-  artist: string,
-  author: number,
-  format: string,
-  genre: number,
-  id: number,
+  artist: string;
+  author: number;
+  format: string;
+  genre: number;
+  id: number;
   meta: {
-    created: number,
-    revision: number,
-    version: number,
-  },
-  rate: number,
-  score: number,
-  size: number,
-  title: string,
+    created: number;
+    revision: number;
+    version: number;
+  };
+  rate: number;
+  score: number;
+  size: number;
+  title: string;
 }
 
 interface ModArchiveModule {
-  filename: string,
-  format: string,
-  url: string,
-  date: string, // In format "Wed 1st Jan 1997"
-  timestamp: number,
-  id: number,
-  hash: string, // MD5 hash
-  featured:{state: unknown, date: string, timestamp: number},
-  favourites: {favoured: number, myfav: number},
-  size: string, // In format 120.37KB
-  bytes: number,
-  hits: number,
-  infopage: string,
-  songtitle: string,
-  hidetext: number,
-  comment: string,
-  instruments: string, // A string containing all instrument names concatenated into a single line
-  genreid: number,
-  genretext: string,
-  channels: number,
-  overall_ratings:{comment_rating: number,comment_total: number,review_rating: number, review_total: number},
-  license:{
-    licenseid: string,
-    title: string,
-    description: string,
-    imageurl: string,
-    deedurl: string,
-    legalurl: string
-  },
-  artist_info:{
-    artists: number,
-    artist:{
-      id: number,
-      alias: string,
-      profile: string, // In form "member.php?69140"
-      imageurl: string,
-      imageurl_thumb: string,
-      imageurl_icon: string,
-      module_data:{module_description: string}
-    },
-    guessed_artists: number,
-    guessed_artist:{alias: string}[]
-  }
+  filename: string;
+  format: string;
+  url: string;
+  date: string; // In format "Wed 1st Jan 1997"
+  timestamp: number;
+  id: number;
+  hash: string; // MD5 hash
+  featured: { state: unknown; date: string; timestamp: number };
+  favourites: { favoured: number; myfav: number };
+  size: string; // In format 120.37KB
+  bytes: number;
+  hits: number;
+  infopage: string;
+  songtitle: string;
+  hidetext: number;
+  comment: string;
+  instruments: string; // A string containing all instrument names concatenated into a single line
+  genreid: number;
+  genretext: string;
+  channels: number;
+  overall_ratings: {
+    comment_rating: number;
+    comment_total: number;
+    review_rating: number;
+    review_total: number;
+  };
+  license: {
+    licenseid: string;
+    title: string;
+    description: string;
+    imageurl: string;
+    deedurl: string;
+    legalurl: string;
+  };
+  artist_info: {
+    artists: number;
+    artist: {
+      id: number;
+      alias: string;
+      profile: string; // In form "member.php?69140"
+      imageurl: string;
+      imageurl_thumb: string;
+      imageurl_icon: string;
+      module_data: { module_description: string };
+    };
+    guessed_artists: number;
+    guessed_artist: { alias: string }[];
+  };
 }
 
 interface RatingList {
-  module: ModArchiveModule[],
-  totalpages: string,
-  results: string
+  module: ModArchiveModule[];
+  totalpages: string;
+  results: string;
 }
 
 interface GenreListBoxItem extends ListBoxItem {
-  count: number
+  count: number;
 }
 
 class ModArchive {
@@ -130,13 +134,13 @@ class ModArchive {
         let apiUrl = "artist/" + param;
         if (page) apiUrl += "/" + page;
         this.loadFromApi<Module>(apiUrl, (data) => {
-          next(this.parseModList(data));//next(this.parseModList(data, params));
+          next(this.parseModList(data)); //next(this.parseModList(data, params));
         });
         break;
       default:
         next([]);
     }
-  };
+  }
 
   private loadGenres(next: (items: ListBoxItem[]) => void) {
     if (this.genres.length) {
@@ -155,7 +159,7 @@ class ModArchive {
                 info: genre.count + " >",
                 children: [],
                 url: "genre/" + genre.id,
-                index: i
+                index: i,
               } as GenreListBoxItem;
               if (!children[genre.parent]) children[genre.parent] = [];
               children[genre.parent].push(item);
@@ -174,7 +178,7 @@ class ModArchive {
                 label: genre.name,
                 children: genreChildren,
                 info: total + " >",
-                index: (result.length - 1) + i
+                index: result.length - 1 + i,
               };
               this.genres.push(item);
             }
@@ -199,7 +203,7 @@ class ModArchive {
               children: [],
               info: artist.count + " >",
               url: "artist/" + artist.id,
-              index: i
+              index: i,
             };
             this.artists.push(item);
           });
@@ -209,20 +213,31 @@ class ModArchive {
     }
   }
 
-  private loadFromApi<T extends Artist | Genre | Module>(url: string, next: (data: T[] | undefined) => void) {
+  private loadFromApi<T extends Artist | Genre | Module>(
+    url: string,
+    next: (data: T[] | undefined) => void,
+  ) {
     console.log("load from api " + this.apiUrl + url);
     FetchService.json<T[]>(this.apiUrl + url, (data) => {
       next(data);
     });
   }
 
-  private loadFromApiV1<T extends Artist | Genre | Module | RatingList>(url: string, next: (data: T | undefined) => void) {
+  private loadFromApiV1<T extends Artist | Genre | Module | RatingList>(
+    url: string,
+    next: (data: T | undefined) => void,
+  ) {
     console.log("load from api " + this.apiUrl + url);
-    FetchService.json<T extends RatingList ? {modarchive: RatingList} : T>(this.apiUrlV1 + url, (data) => {
-      const modArchive: RatingList | undefined = (data as {modarchive: RatingList})?.modarchive;
-      const finalData = data && modArchive ? modArchive : data;
-      next(finalData as T | undefined);
-    });
+    FetchService.json<T extends RatingList ? { modarchive: RatingList } : T>(
+      this.apiUrlV1 + url,
+      (data) => {
+        const modArchive: RatingList | undefined = (
+          data as { modarchive: RatingList }
+        )?.modarchive;
+        const finalData = data && modArchive ? modArchive : data;
+        next(finalData as T | undefined);
+      },
+    );
   }
 
   private parseModList(data?: Module[]): ListBoxItem[] {
@@ -243,7 +258,16 @@ class ModArchive {
     return result;
   }
 
-  private parseModListV1(data: {module: ModArchiveModule[] | ModArchiveModule, totalpages: string, results: string} | undefined, base: string[]): ListBoxItem[] {
+  private parseModListV1(
+    data:
+      | {
+          module: ModArchiveModule[] | ModArchiveModule;
+          totalpages: string;
+          results: string;
+        }
+      | undefined,
+    base: string[],
+  ): ListBoxItem[] {
     const result: ListBoxItem[] = [];
     if (data) {
       if (data.module) {
@@ -256,7 +280,7 @@ class ModArchive {
               label: title,
               url: mod.url,
               icon: "mod",
-              index: i
+              index: i,
             });
           });
         } else {
@@ -276,7 +300,7 @@ class ModArchive {
         const pageCount = parseInt(data.totalpages);
         if (pageCount > 1) {
           let profile = base[0] + "/";
-          let currentPage =  base[1] ? parseInt(base[1]) : 1;
+          let currentPage = base[1] ? parseInt(base[1]) : 1;
           if (isNaN(currentPage)) currentPage = 1;
 
           if (profile == "artist/" || profile == "genre/") {
@@ -292,7 +316,7 @@ class ModArchive {
               label: title,
               children: [],
               url: profile,
-              index: result.length - 1
+              index: result.length - 1,
             });
           }
         }

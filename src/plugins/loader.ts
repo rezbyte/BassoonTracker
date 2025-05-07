@@ -2,11 +2,11 @@ import YascalSprite from "../ui/yascal/sprite";
 import { Y } from "../ui/yascal/yascal";
 
 interface Plugin {
-  name: string,
-  src: string[] | undefined,
-  loading?: boolean
-  loaded?: boolean
-  onLoad?(): void
+  name: string;
+  src: string[] | undefined;
+  loading?: boolean;
+  loaded?: boolean;
+  onLoad?(): void;
 }
 
 class PluginLoader {
@@ -24,20 +24,26 @@ class PluginLoader {
     console.log("register");
     console.log(plugin);
     this.plugins[plugin.name] = plugin;
-  };
+  }
 
   load(plugin: Plugin | string, next: () => void) {
     const pluginName = typeof plugin === "string" ? plugin : plugin.name;
 
-    if (typeof (window as unknown as Record<string, Plugin>)[pluginName] === "object") {
+    if (
+      typeof (window as unknown as Record<string, Plugin>)[pluginName] ===
+      "object"
+    ) {
       // already packaged
       console.log("Plugin " + pluginName + " already loaded");
       if (next) next();
     } else {
-      const currentPlugin: Plugin = typeof plugin === "string" ? {
-        name: plugin,
-        src: PluginLoader.pluginSources[pluginName],
-      } : plugin;
+      const currentPlugin: Plugin =
+        typeof plugin === "string"
+          ? {
+              name: plugin,
+              src: PluginLoader.pluginSources[pluginName],
+            }
+          : plugin;
       const p = this.plugins[pluginName];
       if (p) {
         if (p.loading) {
@@ -51,7 +57,7 @@ class PluginLoader {
         let done = 0;
 
         const loadCallback = function (e: Partial<Event> | string) {
-          if (e  && typeof e === "object" && e.type === "load") {
+          if (e && typeof e === "object" && e.type === "load") {
             done++;
           } else {
             console.error("Error loading resource", e);
@@ -99,7 +105,7 @@ class PluginLoader {
               pluginName +
               " with " +
               currentPlugin.src.length +
-              " source files"
+              " source files",
           );
           currentPlugin.loading = true;
           todo = currentPlugin.src.length;
@@ -119,15 +125,12 @@ class PluginLoader {
             }
           });
         } else {
-          console.warn(
-            "Can't load plugin " + pluginName + ": no source files"
-          );
+          console.warn("Can't load plugin " + pluginName + ": no source files");
           if (next) next();
         }
       }
     }
-  };
-
+  }
 }
 
 export default new PluginLoader();

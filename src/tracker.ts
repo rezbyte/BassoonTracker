@@ -1,11 +1,20 @@
 import Audio from "./audio";
-import waveFormFunction, {WaveFormGenerator} from "./audio/waveFormFunction";
-import { PLAYTYPE, TRACKERMODE, NOTEPERIOD, FTNOTEPERIOD, EVENT, NotePeriod, NOTEOFF,  FTNotePeriod } from "./enum";
+import waveFormFunction, { WaveFormGenerator } from "./audio/waveFormFunction";
+import {
+  PLAYTYPE,
+  TRACKERMODE,
+  NOTEPERIOD,
+  FTNOTEPERIOD,
+  EVENT,
+  NotePeriod,
+  NOTEOFF,
+  FTNotePeriod,
+} from "./enum";
 import EventBus from "./eventBus";
 import Host from "./host";
 import WAAClock from "waaclock";
 import { getUrlParameter } from "./lib/util";
-import Song, {Pattern} from "./models/song";
+import Song, { Pattern } from "./models/song";
 import Note, { NoteInfo } from "./models/note";
 import Instrument from "./models/instrument";
 import { BinaryStream, loadFile } from "./filesystem";
@@ -19,86 +28,86 @@ import type { ListBoxItem } from "./ui/components/listbox";
 import UZIP from "uzip";
 
 interface SongPosition {
-  position: number,
-  step: number
-};
+  position: number;
+  step: number;
+}
 
 interface Effect {
-  value: number
+  value: number;
 }
 
 interface Offset extends Effect {
-  stepValue?: number,
-  instrument?: number
+  stepValue?: number;
+  instrument?: number;
 }
 
 interface Panning extends Effect {
-  slide: boolean
+  slide: boolean;
 }
 
 interface Fade extends Effect {
-  resetOnStep?: boolean
-  fine: boolean
+  resetOnStep?: boolean;
+  fine: boolean;
 }
 
 interface Slide extends Effect {
-  target?: number,
-  canUseGlissando?: boolean,
-  resetVolume?: boolean,
-  volume?: number,
-  fine?: boolean
+  target?: number;
+  canUseGlissando?: boolean;
+  resetVolume?: boolean;
+  volume?: number;
+  fine?: boolean;
 }
 
 interface FineTune {
-  original: number,
-  instrument: Instrument
+  original: number;
+  instrument: Instrument;
 }
 
 interface Arpeggio {
-  root: number,
-  interval1: number,
-  interval2: number,
-  step: number,
+  root: number;
+  interval1: number;
+  interval2: number;
+  step: number;
 }
 
 interface Sine {
-  amplitude: number,
-  freq: number,
+  amplitude: number;
+  freq: number;
 }
 
 export interface Effects {
-  offset?: Offset,
-  volume?: Effect,
-  fade?: Fade,
-  panning?: Panning,
-  arpeggio?: Arpeggio,
-  slide?: Slide,
-  fineSlide?: Slide,
-  defaultSlideTarget?: number
-  slideUp?: Slide
-  slideDown?: Slide
-  fineTune?: FineTune,
-  cutNote?: Effect,
-  noteOff?: Effect,
-  reTrigger?: Effect,
-  vibrato?: Sine,
-  tremolo?: Sine,
-  glissando?: boolean
+  offset?: Offset;
+  volume?: Effect;
+  fade?: Fade;
+  panning?: Panning;
+  arpeggio?: Arpeggio;
+  slide?: Slide;
+  fineSlide?: Slide;
+  defaultSlideTarget?: number;
+  slideUp?: Slide;
+  slideDown?: Slide;
+  fineTune?: FineTune;
+  cutNote?: Effect;
+  noteOff?: Effect;
+  reTrigger?: Effect;
+  vibrato?: Sine;
+  tremolo?: Sine;
+  glissando?: boolean;
 }
 
 export interface TrackerState {
-  patternPos: number, 
-  songPos: number
+  patternPos: number;
+  songPos: number;
 }
 
 interface StepResult {
-  pause?: boolean,
-  pasuseHandled?: boolean
-  patternBreak?: boolean,
-  positionBreak?: boolean,
-  targetSongPosition?: number,
-  targetPatternPosition?: number,
-  patternDelay?: number
+  pause?: boolean;
+  pasuseHandled?: boolean;
+  patternBreak?: boolean;
+  positionBreak?: boolean;
+  targetSongPosition?: number;
+  targetPatternPosition?: number;
+  patternDelay?: number;
 }
 
 export let periodNoteTable: NotePeriod[] = [];
@@ -150,7 +159,7 @@ class Tracker {
 
   private trackNotes: (NoteInfo | null)[] = [];
   private trackEffectCache: Effects[] = [];
-  private trackerStates: {time: number, state: TrackerState}[] = [];
+  private trackerStates: { time: number; state: TrackerState }[] = [];
   private patternLoopStart: Record<number, number> = [];
   private patternLoopCount: Record<number, number> = [];
 
@@ -161,32 +170,32 @@ class Tracker {
   autoPlay: boolean = false;
 
   init(config?: Config) {
-    this.clock = new WAAClock(Audio.context as AudioContext)
+    this.clock = new WAAClock(Audio.context as AudioContext);
     /*for (let i = 0; i < this.trackCount; i++) {
       this.trackNotes.push({});
       this.trackEffectCache.push({});
     }*/
-   this.trackNotes = Array(this.trackCount).fill(null);
-   this.trackEffectCache = Array(this.trackCount);
+    this.trackNotes = Array(this.trackCount).fill(null);
+    this.trackEffectCache = Array(this.trackCount);
 
     for (let i = -8; i < 8; i++) {
       periodFinetuneTable[i] = [];
     }
 
     for (let key in NOTEPERIOD) {
-        const note: NotePeriod = NOTEPERIOD[key];
-        periodNoteTable[note.period] = note;
-        nameNoteTable[note.name] = note;
-        noteNames.push(note.name);
+      const note: NotePeriod = NOTEPERIOD[key];
+      periodNoteTable[note.period] = note;
+      nameNoteTable[note.name] = note;
+      noteNames.push(note.name);
 
-        // build fineTune table
-        if (note.tune) {
-          for (let i = -8; i < 8; i++) {
-            const table = periodFinetuneTable[i];
-            const index = i + 8;
-            table[note.tune[index]] = note.period;
-          }
+      // build fineTune table
+      if (note.tune) {
+        for (let i = -8; i < 8; i++) {
+          const table = periodFinetuneTable[i];
+          const index = i + 8;
+          table[note.tune[index]] = note.period;
         }
+      }
     }
 
     let ftCounter = 0;
@@ -205,7 +214,8 @@ class Tracker {
       if (config.plugin) {
         this.isPlugin = true;
         UI.initPlugin(config);
-        if (typeof config.isMaster === "boolean") this.isMaster = config.isMaster;
+        if (typeof config.isMaster === "boolean")
+          this.isMaster = config.isMaster;
         if (config.handler) {
           EventBus.on(EVENT.songBPMChange, (bpm: number) => {
             if (config.handler) config.handler(EVENT.songBPMChange, bpm);
@@ -218,7 +228,8 @@ class Tracker {
             if (config.handler) config.handler(EVENT.songSpeedChange, speed);
           });
           EventBus.on(EVENT.songSpeedChangeIgnored, (speed: number) => {
-            if (config.handler) config.handler(EVENT.songSpeedChangeIgnored, speed);
+            if (config.handler)
+              config.handler(EVENT.songSpeedChangeIgnored, speed);
           });
 
           EventBus.on(EVENT.patternEnd, (time: number) => {
@@ -227,7 +238,7 @@ class Tracker {
         }
       }
     }
-  };
+  }
 
   setCurrentInstrumentIndex(index: number) {
     if (this.song == null) {
@@ -252,7 +263,7 @@ class Tracker {
           instrumentContainer.push({
             label: i + " " + instrument.name,
             data: i,
-            index: i - 1
+            index: i - 1,
           });
           EventBus.trigger(EVENT.instrumentListChange, instrumentContainer);
         }
@@ -263,19 +274,19 @@ class Tracker {
         this.prevInstrumentIndex = this.currentInstrumentIndex;
       }
     }
-  };
+  }
 
   getCurrentInstrumentIndex() {
     return this.currentInstrumentIndex;
-  };
+  }
 
   getCurrentInstrument(): Instrument {
     return this.instruments[this.currentInstrumentIndex];
-  };
+  }
 
   getMaxInstruments(): 128 | 31 {
     return this.inFTMode() ? 128 : 31;
-  };
+  }
 
   setCurrentPattern(index: number) {
     if (this.song == null) {
@@ -294,13 +305,13 @@ class Tracker {
     if (this.prevPattern != this.currentPattern)
       EventBus.trigger(EVENT.patternChange, this.currentPattern);
     this.prevPattern = this.currentPattern;
-  };
+  }
   getCurrentPattern(): number {
     return this.currentPattern;
-  };
+  }
   getCurrentPatternData(): Pattern | undefined {
     return this.currentPatternData;
-  };
+  }
   updatePatternTable(index: number, value: number) {
     if (this.song == null) {
       console.error("Cannot update song pattern table without a song!");
@@ -312,7 +323,7 @@ class Tracker {
       this.prevPattern = undefined;
       this.setCurrentPattern(value);
     }
-  };
+  }
 
   setCurrentPatternPos(index: number) {
     this.currentPatternPos = index;
@@ -322,21 +333,21 @@ class Tracker {
         prev: this.prevPatternPos,
       });
     this.prevPatternPos = this.currentPatternPos;
-  };
+  }
   getCurrentPatternPos(): number {
     return this.currentPatternPos;
-  };
+  }
   moveCurrentPatternPos(amount: number) {
     let newPos = this.currentPatternPos + amount;
     const max = this.patternLength - 1;
     if (newPos < 0) newPos = max;
     if (newPos > max) newPos = 0;
     this.setCurrentPatternPos(newPos);
-  };
+  }
 
   getCurrentSongPosition(): number {
     return this.currentSongPosition;
-  };
+  }
   setCurrentSongPosition(position: number, fromUserInteraction?: boolean) {
     if (this.song == null) {
       console.error("Cannot set current song position without a song!");
@@ -346,7 +357,9 @@ class Tracker {
     if (this.currentSongPosition != this.prevSongPosition) {
       EventBus.trigger(EVENT.songPositionChange, this.currentSongPosition);
       if (this.song.patternTable)
-        this.setCurrentPattern(this.song.patternTable[this.currentSongPosition]);
+        this.setCurrentPattern(
+          this.song.patternTable[this.currentSongPosition],
+        );
       this.prevSongPosition = this.currentSongPosition;
 
       if (fromUserInteraction && this._isPlaying) {
@@ -354,15 +367,15 @@ class Tracker {
         this.togglePlay();
       }
     }
-  };
+  }
 
   setPlayType(playType: PLAYTYPE) {
     this.currentPlayType = playType;
     EventBus.trigger(EVENT.playTypeChange, this.currentPlayType);
-  };
+  }
   getPlayType(): PLAYTYPE {
     return this.currentPlayType;
-  };
+  }
 
   isPlaying(): boolean {
     return this._isPlaying;
@@ -377,7 +390,7 @@ class Tracker {
     //Audio.startRecording();
     this.playPattern(); // Originally: me.playPattern(this.currentPattern)
     EventBus.trigger(EVENT.playingChange, this._isPlaying);
-  };
+  }
 
   playPattern() {
     this.stop();
@@ -387,7 +400,7 @@ class Tracker {
     this._isPlaying = true;
     this.startPattern(this.currentPattern);
     EventBus.trigger(EVENT.playingChange, this._isPlaying);
-  };
+  }
 
   stop() {
     if (this.clock) this.clock.stop();
@@ -411,14 +424,14 @@ class Tracker {
 
     this._isPlaying = false;
     EventBus.trigger(EVENT.playingChange, this._isPlaying);
-  };
+  }
 
   pause() {
     // this is only called when speed is set to 0
     if (this.clock) this.clock.stop();
     this._isPlaying = false;
     EventBus.trigger(EVENT.playingChange, this._isPlaying);
-  };
+  }
 
   togglePlay() {
     if (this.isPlaying()) {
@@ -430,14 +443,14 @@ class Tracker {
         this.playSong();
       }
     }
-  };
+  }
 
   getProperties() {
     return {
       ticksPerStep: this.ticksPerStep,
       tickTime: this.tickTime,
     };
-  };
+  }
 
   private startPattern(patternIndex: number = 0) {
     if (this.song == null) {
@@ -446,7 +459,7 @@ class Tracker {
     }
 
     if (this.clock == null) {
-      console.error("Cannot play a pattern without Tracker being initialized!")
+      console.error("Cannot play a pattern without Tracker being initialized!");
       return;
     }
     this.clock.start();
@@ -494,19 +507,25 @@ class Tracker {
             if (!stepResult.pasuseHandled) {
               const delta = time - Audio.context.currentTime;
               if (delta > 0) {
-                setTimeout(() => {
-                  this.pause();
-                  // in Fasttracker this repeats the current step with the previous speed - including effects.
-                  // (which seems totally weird)
-                  this.setAmigaSpeed(6);
-                }, Math.round(delta * 1000) + 100);
+                setTimeout(
+                  () => {
+                    this.pause();
+                    // in Fasttracker this repeats the current step with the previous speed - including effects.
+                    // (which seems totally weird)
+                    this.setAmigaSpeed(6);
+                  },
+                  Math.round(delta * 1000) + 100,
+                );
               }
               stepResult.pasuseHandled = true;
             }
             return;
           }
 
-          this.setStateAtTime(time, { patternPos: p, songPos: playSongPosition });
+          this.setStateAtTime(time, {
+            patternPos: p,
+            songPos: playSongPosition,
+          });
           if (!UI) this.setCurrentSongPosition(playSongPosition);
 
           if (stepResult.patternDelay) {
@@ -523,7 +542,7 @@ class Tracker {
               p,
               time,
               playPatternData,
-              playSongPosition
+              playSongPosition,
             );
             time += this.ticksPerStep * this.tickTime;
             p++;
@@ -541,9 +560,11 @@ class Tracker {
               p = 0;
               if (this.getPlayType() === PLAYTYPE.song) {
                 const song = this.song;
-                let nextPosition: number = stepResult.positionBreak && stepResult.targetSongPosition !== undefined
-                  ? stepResult.targetSongPosition
-                  : ++playSongPosition;
+                let nextPosition: number =
+                  stepResult.positionBreak &&
+                  stepResult.targetSongPosition !== undefined
+                    ? stepResult.targetSongPosition
+                    : ++playSongPosition;
                 if (nextPosition >= song.length) {
                   nextPosition = song.restartPosition
                     ? song.restartPosition - 1
@@ -574,7 +595,7 @@ class Tracker {
               }
               EventBus.trigger(
                 EVENT.patternEnd,
-                time - this.ticksPerStep * this.tickTime
+                time - this.ticksPerStep * this.tickTime,
               );
             }
           }
@@ -594,7 +615,7 @@ class Tracker {
                 const scheduledtime = instrument.scheduleEnvelopeLoop(
                   trackNote.volumeEnvelope,
                   trackNote.scheduled.volume,
-                  2
+                  2,
                 );
                 trackNote.scheduled.volume += scheduledtime;
               }
@@ -605,7 +626,7 @@ class Tracker {
                 const scheduledtime = instrument.scheduleEnvelopeLoop(
                   trackNote.panningEnvelope,
                   trackNote.scheduled.panning,
-                  2
+                  2,
                 );
                 trackNote.scheduled.panning += scheduledtime;
               }
@@ -617,9 +638,16 @@ class Tracker {
       .tolerance({ early: 0.1 });
   }
 
-  playPatternStep(step: number, time: number = 0, patternData: Pattern | undefined = this.currentPatternData, songPostition: number = 0): StepResult {
+  playPatternStep(
+    step: number,
+    time: number = 0,
+    patternData: Pattern | undefined = this.currentPatternData,
+    songPostition: number = 0,
+  ): StepResult {
     if (patternData === undefined) {
-      throw new Error("Cannot playPatternStep without any pattern data loaded!");
+      throw new Error(
+        "Cannot playPatternStep without any pattern data loaded!",
+      );
     }
     // note: patternData can be different than currentPatternData when playback is active with long look ahead times
 
@@ -657,7 +685,8 @@ class Tracker {
 
         let playtime = time;
         if (this.swing) {
-          const swingTime = (Math.random() * this.swing * 2 - this.swing) / 1000;
+          const swingTime =
+            (Math.random() * this.swing * 2 - this.swing) / 1000;
           playtime += swingTime;
         }
 
@@ -682,8 +711,12 @@ class Tracker {
     return result;
   }
 
-
-  private playNote(note: Note, track: number, time: number, songPos: SongPosition): StepResult {
+  private playNote(
+    note: Note,
+    track: number,
+    time: number,
+    songPos: SongPosition,
+  ): StepResult {
     let defaultVolume: number | undefined = 100;
     const trackEffects: Effects = {};
 
@@ -706,9 +739,11 @@ class Tracker {
         instrumentIndex &&
         this.trackEffectCache[track].offset
       ) {
-        if (this.trackEffectCache[track].offset.instrument === instrumentIndex) {
+        if (
+          this.trackEffectCache[track].offset.instrument === instrumentIndex
+        ) {
           console.log(
-            "applying instrument offset cache to instrument " + instrumentIndex
+            "applying instrument offset cache to instrument " + instrumentIndex,
           );
           trackEffects.offset = this.trackEffectCache[track].offset;
         }
@@ -722,7 +757,8 @@ class Tracker {
 
         if (Settings.emulateProtracker1OffsetBug) {
           // reset instrument offset when a instrument number is present;
-          const newTrackOffset: Offset = this.trackEffectCache[track].offset || {value: 0};
+          const newTrackOffset: Offset = this.trackEffectCache[track]
+            .offset || { value: 0 };
           newTrackOffset.value = 0;
           newTrackOffset.instrument = note.instrument;
           this.trackEffectCache[track].offset = newTrackOffset;
@@ -743,9 +779,15 @@ class Tracker {
       }
 
       if (noteIndex === NOTEOFF) {
-        const offInstrument = instrument ? instrument : this.trackNotes[track] ? this.getInstrument(this.trackNotes[track].instrumentIndex) : null;
+        const offInstrument = instrument
+          ? instrument
+          : this.trackNotes[track]
+            ? this.getInstrument(this.trackNotes[track].instrumentIndex)
+            : null;
         if (offInstrument) {
-          volume = this.trackNotes[track] ? offInstrument.noteOff(time, this.trackNotes[track]) : 100; 
+          volume = this.trackNotes[track]
+            ? offInstrument.noteOff(time, this.trackNotes[track])
+            : 100;
         } else {
           console.log("no instrument on track " + track);
           volume = 0;
@@ -796,14 +838,14 @@ class Tracker {
             // volume slide down
             trackEffects.fade = {
               value: (y * -1 * 100) / 64,
-              fine: false
+              fine: false,
             };
             break;
           case 7:
             // volume slide up
             trackEffects.fade = {
               value: (y * 100) / 64,
-              fine: false
+              fine: false,
             };
             break;
           case 8:
@@ -846,7 +888,7 @@ class Tracker {
           case 14:
             // Panning slide right
             console.warn(
-              "Panning slide right not implemented - track " + track
+              "Panning slide right not implemented - track " + track,
             );
             break;
           case 15:
@@ -872,7 +914,11 @@ class Tracker {
           // how does this work?
           // see example just_about_seven.mod
 
-          instrument = instrument ? instrument : this.trackNotes[track] ? this.getInstrument(this.trackNotes[track].instrumentIndex) : undefined;
+          instrument = instrument
+            ? instrument
+            : this.trackNotes[track]
+              ? this.getInstrument(this.trackNotes[track].instrumentIndex)
+              : undefined;
 
           if (this.inFTMode()) {
             if (instrument) {
@@ -1017,7 +1063,7 @@ class Tracker {
         }
 
         break;
-      case 4:{
+      case 4: {
         // vibrato
         // reset volume and vibrato timer if instrument number is present
         if (note.instrument && this.trackNotes[track]) {
@@ -1103,7 +1149,7 @@ class Tracker {
           trackEffects.fade = {
             value: value,
             resetOnStep: !!note.instrument, // volume only needs resetting when the instrument number is given, other wise the volue is remembered from the preious state
-            fine: false
+            fine: false,
           };
           this.trackEffectCache[track].fade = trackEffects.fade;
         }
@@ -1137,7 +1183,7 @@ class Tracker {
 
           trackEffects.fade = {
             value: value,
-            fine: false
+            fine: false,
           };
           this.trackEffectCache[track].fade = trackEffects.fade;
         } else {
@@ -1234,7 +1280,9 @@ class Tracker {
         };
 
         // note: keep previous  this.trackEffectCache[track].offset.instrument intact
-        const newTrackOffset: Offset = this.trackEffectCache[track].offset || {value: trackEffects.offset.value};
+        const newTrackOffset: Offset = this.trackEffectCache[track].offset || {
+          value: trackEffects.offset.value,
+        };
         newTrackOffset.value = trackEffects.offset.value;
         newTrackOffset.stepValue = trackEffects.offset.stepValue;
         this.trackEffectCache[track].offset = newTrackOffset;
@@ -1392,7 +1440,8 @@ class Tracker {
                 result.patternBreak = true;
                 result.positionBreak = true;
                 result.targetSongPosition = songPos.position; // keep on same position
-                result.targetPatternPosition = this.patternLoopStart[track] || 0; // should we default to 0 if no start was set or just ignore?
+                result.targetPatternPosition =
+                  this.patternLoopStart[track] || 0; // should we default to 0 if no start was set or just ignore?
 
                 console.log(
                   "looping to " +
@@ -1400,14 +1449,14 @@ class Tracker {
                     " for " +
                     this.patternLoopCount[track] +
                     "/" +
-                    subValue
+                    subValue,
                 );
               } else {
                 this.patternLoopCount[track] = 0;
               }
             } else {
               console.log(
-                "setting loop start to " + songPos.step + " on track " + track
+                "setting loop start to " + songPos.step + " on track " + track,
               );
               this.patternLoopStart[track] = songPos.step;
             }
@@ -1551,7 +1600,11 @@ class Tracker {
             // ignore: delay is too large
           } else {
             doPlayNote = false;
-            const offInstrument = instrument ? instrument : this.trackNotes[track] ? this.getInstrument(this.trackNotes[track].instrumentIndex) : null;
+            const offInstrument = instrument
+              ? instrument
+              : this.trackNotes[track]
+                ? this.getInstrument(this.trackNotes[track].instrumentIndex)
+                : null;
             if (offInstrument) {
               if (note.param) {
                 trackEffects.noteOff = {
@@ -1559,7 +1612,11 @@ class Tracker {
                 };
                 doPlayNote = true;
               } else {
-                volume =  this.trackNotes[track] ? offInstrument.noteOff(time, this.trackNotes[track]) : this.inFTMode() ? 100 : 0;
+                volume = this.trackNotes[track]
+                  ? offInstrument.noteOff(time, this.trackNotes[track])
+                  : this.inFTMode()
+                    ? 100
+                    : 0;
                 defaultVolume = volume;
               }
             } else {
@@ -1610,7 +1667,7 @@ class Tracker {
           volume,
           track,
           trackEffects,
-          time
+          time,
         );
       }
 
@@ -1629,7 +1686,7 @@ class Tracker {
       // reset temporary instrument settings
       if (trackEffects.fineTune && trackEffects.fineTune.instrument) {
         trackEffects.fineTune.instrument.setFineTune(
-          trackEffects.fineTune.original || 0
+          trackEffects.fineTune.original || 0,
         );
       }
     }
@@ -1651,7 +1708,7 @@ class Tracker {
         const gain = this.trackNotes[track].volume.gain;
         gain.setValueAtTime(
           this.trackNotes[track].currentVolume / 100,
-          time - 0.002
+          time - 0.002,
         );
         gain.linearRampToValueAtTime(0, time);
         this.trackNotes[track].source.stop(time + 0.02);
@@ -1683,7 +1740,7 @@ class Tracker {
         currentPeriod,
         trackNote.vibratoTimer,
         _freq,
-        _amp
+        _amp,
       );
       trackNote.vibratoTimer++;
       return targetPeriod;
@@ -1749,7 +1806,7 @@ class Tracker {
         if (trackNote.volume) {
           trackNote.volume.gain.setValueAtTime(
             currentVolume / 100,
-            time + tick * this.tickTime
+            time + tick * this.tickTime,
           );
           currentVolume += value;
           currentVolume = Math.max(currentVolume, 0);
@@ -1793,7 +1850,8 @@ class Tracker {
         // TODO: Why don't we use a RampToValueAtTime here ?
         for (let tick = 1; tick < steps; tick++) {
           if (effects.slide.target) {
-            this.trackEffectCache[track].defaultSlideTarget = effects.slide.target;
+            this.trackEffectCache[track].defaultSlideTarget =
+              effects.slide.target;
             if (targetPeriod < effects.slide.target) {
               targetPeriod += value;
               if (targetPeriod > effects.slide.target)
@@ -1819,7 +1877,7 @@ class Tracker {
           ) {
             newPeriod = Audio.getNearestSemiTone(
               targetPeriod,
-              trackNote.instrumentIndex
+              trackNote.instrumentIndex,
             );
           }
 
@@ -1833,35 +1891,43 @@ class Tracker {
               targetPeriod = this.applyAutoVibrato(trackNote, newPeriod);
               autoVibratoHandled = true;
             }
-            this.setPeriodAtTime(trackNote, newPeriod, time + tick * this.tickTime);
+            this.setPeriodAtTime(
+              trackNote,
+              newPeriod,
+              time + tick * this.tickTime,
+            );
           }
         }
       }
     }
 
     if (effects.arpeggio && trackNote.source) {
-        const currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
-        let targetPeriod: number  = currentPeriod;
+      const currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
+      let targetPeriod: number = currentPeriod;
 
-        trackNote.resetPeriodOnStep = true;
-        trackNote.vibratoTimer = trackNote.startVibratoTimer;
+      trackNote.resetPeriodOnStep = true;
+      trackNote.vibratoTimer = trackNote.startVibratoTimer;
 
-        for (let tick = 0; tick < this.ticksPerStep; tick++) {
-          const t = tick % 3;
+      for (let tick = 0; tick < this.ticksPerStep; tick++) {
+        const t = tick % 3;
 
-          if (t == 0) targetPeriod = currentPeriod;
-          if (t == 1 && effects.arpeggio.interval1)
-            targetPeriod = currentPeriod - effects.arpeggio.interval1;
-          if (t == 2 && effects.arpeggio.interval2)
-            targetPeriod = currentPeriod - effects.arpeggio.interval2;
+        if (t == 0) targetPeriod = currentPeriod;
+        if (t == 1 && effects.arpeggio.interval1)
+          targetPeriod = currentPeriod - effects.arpeggio.interval1;
+        if (t == 2 && effects.arpeggio.interval2)
+          targetPeriod = currentPeriod - effects.arpeggio.interval2;
 
-          if (trackNote.hasAutoVibrato && this.inFTMode()) {
-            targetPeriod = this.applyAutoVibrato(trackNote, targetPeriod);
-            autoVibratoHandled = true;
-          }
-
-          this.setPeriodAtTime(trackNote, targetPeriod, time + tick * this.tickTime);
+        if (trackNote.hasAutoVibrato && this.inFTMode()) {
+          targetPeriod = this.applyAutoVibrato(trackNote, targetPeriod);
+          autoVibratoHandled = true;
         }
+
+        this.setPeriodAtTime(
+          trackNote,
+          targetPeriod,
+          time + tick * this.tickTime,
+        );
+      }
     }
 
     if (effects.vibrato || (trackNote.hasAutoVibrato && !autoVibratoHandled)) {
@@ -1882,7 +1948,7 @@ class Tracker {
             currentPeriod,
             trackNote.vibratoTimer,
             freq,
-            amp
+            amp,
           );
 
           // should we add or average the 2 effects?
@@ -1894,16 +1960,19 @@ class Tracker {
           }
 
           // TODO: if we ever allow multiple effect on the same tick then we should rework this as you can't have concurrent "setPeriodAtTime" commands
-          this.setPeriodAtTime(trackNote, targetPeriod, time + tick * this.tickTime);
+          this.setPeriodAtTime(
+            trackNote,
+            targetPeriod,
+            time + tick * this.tickTime,
+          );
         }
       }
     }
 
     if (this.tremoloFunction == null) {
-      console.error("Missing tremolo function!")
+      console.error("Missing tremolo function!");
     }
     if (effects.tremolo && this.tremoloFunction) {
-      
       const freq = effects.tremolo.freq;
       const amp = effects.tremolo.amplitude;
 
@@ -1913,14 +1982,19 @@ class Tracker {
         let _volume = trackNote.startVolume;
 
         for (let tick = 0; tick < this.ticksPerStep; tick++) {
-          _volume = this.tremoloFunction(_volume, trackNote.tremoloTimer, freq, amp);
+          _volume = this.tremoloFunction(
+            _volume,
+            trackNote.tremoloTimer,
+            freq,
+            amp,
+          );
 
           if (_volume < 0) _volume = 0;
           if (_volume > 100) _volume = 100;
 
           trackNote.volume.gain.setValueAtTime(
             _volume / 100,
-            time + tick * this.tickTime
+            time + tick * this.tickTime,
           );
           trackNote.currentVolume = _volume;
           trackNote.tremoloTimer++;
@@ -1932,7 +2006,7 @@ class Tracker {
       if (trackNote.volume) {
         trackNote.volume.gain.setValueAtTime(
           0,
-          time + effects.cutNote.value * this.tickTime
+          time + effects.cutNote.value * this.tickTime,
         );
       }
       trackNote.currentVolume = 0;
@@ -1943,7 +2017,7 @@ class Tracker {
       if (instrument) {
         trackNote.currentVolume = instrument.noteOff(
           time + effects.noteOff.value * this.tickTime,
-          trackNote
+          trackNote,
         );
       }
     }
@@ -1966,19 +2040,23 @@ class Tracker {
           track,
           effects,
           triggerTime,
-          noteIndex
+          noteIndex,
         );
         triggerCount += triggerStep;
       }
     }
   }
 
-  setBPM(newBPM: number, sender?: {isMaster: boolean}) {
+  setBPM(newBPM: number, sender?: { isMaster: boolean }) {
     const fromMaster = sender && sender.isMaster;
     if (this.isMaster || fromMaster) {
       console.log("set BPM: " + this.bpm + " to " + newBPM);
       if (this.clock && this.mainTimer)
-        this.clock.timeStretch(Audio.context.currentTime, [this.mainTimer], this.bpm / newBPM);
+        this.clock.timeStretch(
+          Audio.context.currentTime,
+          [this.mainTimer],
+          this.bpm / newBPM,
+        );
       if (!fromMaster) EventBus.trigger(EVENT.songBPMChangeIgnored, this.bpm);
       this.bpm = newBPM;
       this.tickTime = 2.5 / this.bpm;
@@ -1986,13 +2064,13 @@ class Tracker {
     } else {
       EventBus.trigger(EVENT.songBPMChangeIgnored, newBPM);
     }
-  };
+  }
 
   getBPM() {
     return this.bpm;
-  };
+  }
 
-  setAmigaSpeed(speed: number, sender?: {isMaster: boolean}) {
+  setAmigaSpeed(speed: number, sender?: { isMaster: boolean }) {
     // 1 tick is 0.02 seconds on a PAL Amiga
     // 4 steps is 1 beat
     // the speeds sets the amount of ticks in 1 step
@@ -2006,23 +2084,23 @@ class Tracker {
     } else {
       EventBus.trigger(EVENT.songSpeedChangeIgnored, speed);
     }
-  };
+  }
 
   getAmigaSpeed(): number {
     return this.ticksPerStep;
-  };
+  }
 
   getSwing(): number {
     return this.swing;
-  };
+  }
 
   setSwing(newSwing: number) {
     this.swing = newSwing;
-  };
+  }
 
   getPatternLength(): number {
     return this.patternLength;
-  };
+  }
 
   setPatternLength(value: number) {
     if (this.song == null) {
@@ -2043,46 +2121,45 @@ class Tracker {
         this.song.patterns[this.currentPattern].push(row);
       }
     } else {
-      this.song.patterns[this.currentPattern] = this.song.patterns[this.currentPattern].splice(
-        0,
-        this.patternLength
-      );
+      this.song.patterns[this.currentPattern] = this.song.patterns[
+        this.currentPattern
+      ].splice(0, this.patternLength);
       if (this.currentPatternPos >= this.patternLength) {
         this.setCurrentPatternPos(this.patternLength - 1);
       }
     }
 
     EventBus.trigger(EVENT.patternChange, this.currentPattern);
-  };
+  }
 
   getTrackCount(): number {
     return this.trackCount;
-  };
+  }
 
   setTrackCount(count: number) {
     this.trackCount = count;
 
-   // for (let i = this.trackNotes.length; i <= this.trackCount; i++) this.trackNotes.push({});
+    // for (let i = this.trackNotes.length; i <= this.trackCount; i++) this.trackNotes.push({});
     this.trackNotes = Array(this.trackNotes.length).fill(null);
     for (let i = this.trackEffectCache.length; i < this.trackCount; i++)
       this.trackEffectCache.push({});
 
     EventBus.trigger(EVENT.trackCountChange, this.trackCount);
-  };
+  }
 
   getIsRecording(): boolean {
     return this.isRecording;
-  };
+  }
 
   toggleRecord() {
     this.stop();
     this.isRecording = !this.isRecording;
     EventBus.trigger(EVENT.recordingChange, this.isRecording);
-  };
+  }
 
   setStateAtTime(time: number, state: TrackerState) {
     this.trackerStates.push({ time: time, state: state });
-  };
+  }
 
   getStateAtTime(time: number): TrackerState | undefined {
     let result = undefined;
@@ -2095,11 +2172,11 @@ class Tracker {
       }
     }
     return result;
-  };
+  }
 
   getTimeStates() {
     return this.trackerStates;
-  };
+  }
 
   setPeriodAtTime(trackNote: NoteInfo, period: number, time: number) {
     // TODO: shouldn't we always set the full samplerate from the period?
@@ -2120,9 +2197,14 @@ class Tracker {
     // TODO: retest on Chrome windows and other browsers
     trackNote.source.playbackRate.setValueAtTime(rate, time);
     trackNote.source.playbackRate.setValueAtTime(rate, time + 0.005);
-  };
+  }
 
-  load(url: string = "/demomods/StardustMemories.mod", skipHistory: boolean = false, next?: () => void, initial: boolean = false) {
+  load(
+    url: string = "/demomods/StardustMemories.mod",
+    skipHistory: boolean = false,
+    next?: () => void,
+    initial: boolean = false,
+  ) {
     if (url.indexOf("://") < 0 && url.indexOf("/") !== 0)
       url = Host.getBaseUrl() + url;
 
@@ -2144,8 +2226,10 @@ class Tracker {
           if (this.song == null) {
             this.new();
             if (this.song == null) {
-              console.error("Tracker.load() expected Tracker.new() to initalize a new song!")
-              return
+              console.error(
+                "Tracker.load() expected Tracker.new() to initalize a new song!",
+              );
+              return;
             }
           }
 
@@ -2186,7 +2270,7 @@ class Tracker {
             window.history.pushState(
               {},
               name,
-              filename + "?file=" + encodeURIComponent(url)
+              filename + "?file=" + encodeURIComponent(url),
             );
           }
         }
@@ -2205,11 +2289,11 @@ class Tracker {
       });
     } else {
       // TODO: url always seems to be string, consider deleting this block
-     /* name = url.name || "";
+      /* name = url.name || "";
       skipHistory = true;
       process(url.buffer || url); */
     }
-  };
+  }
 
   private checkAutoPlay(skipHistory: boolean) {
     let autoPlay = getUrlParameter("autoplay");
@@ -2218,7 +2302,7 @@ class Tracker {
     if (autoPlay == "true" || autoPlay == "1") {
       this.playSong();
     }
-  };
+  }
 
   handleUpload(files: FileList) {
     console.log("file uploaded");
@@ -2233,9 +2317,13 @@ class Tracker {
       };
       reader.readAsArrayBuffer(file);
     }
-  };
+  }
 
-  processFile(arrayBuffer: ArrayBuffer, name: string, next?: (isMod: boolean) => void) {
+  processFile(
+    arrayBuffer: ArrayBuffer,
+    name: string,
+    next?: (isMod: boolean) => void,
+  ) {
     let isMod = false;
     const file = new BinaryStream(arrayBuffer, true);
     const result = FileDetector.detect(file, name);
@@ -2244,13 +2332,13 @@ class Tracker {
       console.log("extracting zip file");
       if (UI) UI.setStatus("Extracting Zip file", true);
       //if (typeof UZIP !== "undefined") {
-        // using UZIP: https://github.com/photopea/UZIP.js
-        const myArchive = UZIP.parse(arrayBuffer);
-        console.log(myArchive);
-        for (let name in myArchive) {
-          this.processFile(myArchive[name].buffer, name, next);
-          break; // just use first entry
-        }
+      // using UZIP: https://github.com/photopea/UZIP.js
+      const myArchive = UZIP.parse(arrayBuffer);
+      console.log(myArchive);
+      for (let name in myArchive) {
+        this.processFile(myArchive[name].buffer, name, next);
+        break; // just use first entry
+      }
       /* } else {
         // if UZIP wasn't loaded use zip.js
         zip.workerScriptsPath = "script/src/lib/zip/";
@@ -2311,28 +2399,28 @@ class Tracker {
     }
 
     if (next) next(isMod);
-  };
+  }
 
   getSong(): Song | undefined {
     return this.song;
-  };
+  }
 
   getInstruments(): Instrument[] {
     return this.instruments;
-  };
+  }
 
   getInstrument(index: number): Instrument {
     return this.instruments[index];
-  };
+  }
 
   setInstrument(index: number, instrument: Instrument) {
     instrument.instrumentIndex = index;
     this.instruments[index] = instrument;
-  };
+  }
 
   private onModuleLoad() {
     if (this.song == null) {
-      console.error("Loaded module without song!")
+      console.error("Loaded module without song!");
       return;
     }
     if (UI) UI.setInfo(this.song.title);
@@ -2380,12 +2468,12 @@ class Tracker {
   }
 
   clearEffectCache() {
-     this.trackEffectCache = [];
+    this.trackEffectCache = [];
 
     for (let i = 0; i < this.trackCount; i++) {
-       this.trackEffectCache.push({});
+      this.trackEffectCache.push({});
     }
-  };
+  }
 
   clearInstruments(count?: number) {
     if (!this.song) return;
@@ -2400,7 +2488,7 @@ class Tracker {
 
     EventBus.trigger(EVENT.instrumentListChange, instrumentContainer);
     EventBus.trigger(EVENT.instrumentChange, this.currentInstrumentIndex);
-  };
+  }
 
   setTrackerMode(mode: TRACKERMODE, force: boolean) {
     let doChange = () => {
@@ -2417,7 +2505,7 @@ class Tracker {
           () => {
             doChange();
           },
-          () => {}
+          () => {},
         );
       } else {
         doChange();
@@ -2425,17 +2513,17 @@ class Tracker {
     } else {
       doChange();
     }
-  };
+  }
   getTrackerMode() {
     return this.trackerMode;
-  };
+  }
   inFTMode() {
     return this.trackerMode === TRACKERMODE.FASTTRACKER;
-  };
+  }
 
   new() {
     this.resetDefaultSettings();
-    
+
     this.clearInstruments(31);
 
     const patternTable = [];
@@ -2454,17 +2542,19 @@ class Tracker {
     };
 
     this.onModuleLoad();
-  };
+  }
 
   private clearInstrument() {
     this.instruments[this.currentInstrumentIndex] = new Instrument();
     EventBus.trigger(EVENT.instrumentChange, this.currentInstrumentIndex);
     EventBus.trigger(EVENT.instrumentNameChange, this.currentInstrumentIndex);
-  };
+  }
 
   getFileName(): string {
     if (this.song == null) {
-      console.error("Cannot get the file name of the loaded song without a song loaded!");
+      console.error(
+        "Cannot get the file name of the loaded song without a song loaded!",
+      );
       return "new.mod";
     }
     return (
@@ -2473,7 +2563,7 @@ class Tracker {
         ? this.song.title.replace(/ /g, "-").replace(/\W/g, "") + ".mod"
         : "new.mod")
     );
-  };
+  }
 
   private getEmptyPattern(): Pattern {
     const result = [];
@@ -2486,7 +2576,6 @@ class Tracker {
     }
     return result;
   }
-
-};
+}
 
 export default new Tracker();

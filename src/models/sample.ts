@@ -20,10 +20,10 @@ export default class Sample {
     type: 0,
   };
 
-  info?: MetaData
+  info?: MetaData;
   type: number = 0;
   reserved: number = 0;
-  
+
   check() {
     let min = 0;
     let max = 0;
@@ -32,6 +32,5 @@ export default class Sample {
       max = Math.max(max, this.data[i]);
     }
     return { min: min, max: max };
-  };
-
-};
+  }
+}

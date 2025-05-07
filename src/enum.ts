@@ -1,27 +1,27 @@
 type CachedAssets = {
-  images: Record<string, object>,
-  audio: Record<string, AudioBuffer | undefined>,
-  json: {},
-  arrayBuffer: {},
-  darkPanel: HTMLCanvasElement | undefined
+  images: Record<string, object>;
+  audio: Record<string, AudioBuffer | undefined>;
+  json: {};
+  arrayBuffer: {};
+  darkPanel: HTMLCanvasElement | undefined;
 };
 export const cachedAssets: CachedAssets = {
   images: {},
   audio: {},
   json: {},
   arrayBuffer: {},
-  darkPanel: undefined
+  darkPanel: undefined,
 };
 
 export const sprites = {};
 //export let UI = undefined;
 
-export const enum PRELOADTYPE  {
+export const enum PRELOADTYPE {
   image,
   audio,
   json,
   binary,
-};
+}
 
 export const enum EVENT {
   instrumentChange,
@@ -81,7 +81,7 @@ export const enum EVENT {
   pluginRenderHook,
   menuLayoutChanged,
   midiIn,
-};
+}
 
 export const enum COMMAND {
   newFile,
@@ -181,7 +181,7 @@ export function commandFromString(command: string): COMMAND | null {
 }
 
 export const enum VIEW {
-  main, 
+  main,
   options,
   fileOperations,
   sampleEditor,
@@ -197,25 +197,25 @@ export const enum VIEW {
   fileOperationsSaveModule,
   piano,
   appSideBar,
-  custom // Used for plugins such as Nibbles
+  custom, // Used for plugins such as Nibbles
 }
 
 export const enum PLAYTYPE {
   song,
   pattern,
-};
+}
 
 export const enum FILETYPE {
   module,
   sample,
   pattern,
   track,
-};
+}
 
 export const enum MODULETYPE {
   mod,
   xm,
-};
+}
 
 export const enum SAMPLETYPE {
   RAW_8BIT,
@@ -228,24 +228,24 @@ export const enum SAMPLETYPE {
   FLAC,
   OGG,
   OPUS,
-};
+}
 
 export const enum STEREOSEPARATION {
   FULL,
   BALANCED,
   NONE,
-};
+}
 
 export const enum FREQUENCYTABLE {
   AMIGA,
   LINEAR,
-};
+}
 
 export const enum LOOPTYPE {
   NONE,
   FORWARD,
   PINGPONG,
-};
+}
 
 export const enum SELECTION {
   RESET,
@@ -256,7 +256,7 @@ export const enum SELECTION {
   POSITION,
   DELETE,
   REPLACE,
-};
+}
 
 export const enum EDITACTION {
   PATTERN,
@@ -266,7 +266,7 @@ export const enum EDITACTION {
   VALUE,
   DATA,
   SAMPLE,
-};
+}
 
 // Amiga Frequency
 //var PALFREQUENCY = 7093789.2;
@@ -278,17 +278,17 @@ export const PC_FREQUENCY = 7158728;
 export const AMIGA_PALFREQUENCY_HALF = AMIGA_PALFREQUENCY / 2;
 export const PC_FREQUENCY_HALF = PC_FREQUENCY / 2;
 
-export const enum LAYOUTS  {
+export const enum LAYOUTS {
   column4 = 4,
   column5 = 5,
   column5Full = 6,
   column6 = 7,
-};
+}
 
 export interface NotePeriod {
-  period: number,
-  name: string,
-  tune: number[],
+  period: number;
+  name: string;
+  tune: number[];
 }
 
 // used in Protracker mode
@@ -584,9 +584,9 @@ export const NOTEPERIOD: Record<string, NotePeriod> = {
 };
 
 export interface FTNotePeriod {
-  name: string,
-  period: number,
-  modPeriod?: number
+  name: string;
+  period: number;
+  modPeriod?: number;
 }
 
 // used in Fasttracker - Amiga frequency mode
@@ -773,9 +773,9 @@ export const enum KEYBOARDKEYS {
   COctaveUp2,
   CsharpOctaveUp2,
   DOctaveUp2,
-};
+}
 
-export const OCTAVENOTES: Record<number, {name: string}> = {
+export const OCTAVENOTES: Record<number, { name: string }> = {
   0: { name: "OFF" },
   1: { name: "C" },
   2: { name: "Cs" },
@@ -942,4 +942,4 @@ export const KEYBOARDTABLE: Record<string, Record<string, KEYBOARDKEYS>> = {
 export const enum TRACKERMODE {
   PROTRACKER,
   FASTTRACKER,
-};
+}

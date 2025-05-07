@@ -5,13 +5,12 @@ import FastTracker from "./fasttracker";
 import FileFormat from "./fileformat";
 
 interface FileType {
-  name: string
-  isMod?: true
-  isSample?: true
-  loader?: () => FileFormat
+  name: string;
+  isMod?: true;
+  isSample?: true;
+  loader?: () => FileFormat;
 }
 class FileDetector {
-
   private readonly fileType: Record<string, FileType> = {
     unknown: { name: "UNKNOWN" },
     unsupported: { name: "UNSUPPORTED" },
@@ -119,7 +118,8 @@ class FileDetector {
         let totalSampleLength = 0;
         let probability = 0;
         for (let s = 0; s < 15; s++) {
-          for (let i = 0; i < 22; i++) if (!isAcii(file.readByte())) return false;
+          for (let i = 0; i < 22; i++)
+            if (!isAcii(file.readByte())) return false;
           file.jump(-22);
           const name = file.readString(22);
           if (name.toLowerCase().substr(0, 3) == "st-") probability += 10;
@@ -141,8 +141,7 @@ class FileDetector {
 
     // fallback to sample
     return this.fileType.sample;
-  };
-
-};
+  }
+}
 
 export default new FileDetector();

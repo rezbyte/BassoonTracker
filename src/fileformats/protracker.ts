@@ -139,7 +139,7 @@ export default class ProTracker implements FileFormat {
             " with length of " +
             instrument.sample.length +
             " bytes and repeat length of " +
-            instrument.sample.loop.length
+            instrument.sample.loop.length,
         );
 
         let sampleEnd = instrument.sample.length;
@@ -152,7 +152,7 @@ export default class ProTracker implements FileFormat {
           // cut off trailing bytes for short looping samples
           sampleEnd = Math.min(
             sampleEnd,
-            instrument.sample.loop.start + instrument.sample.loop.length
+            instrument.sample.loop.start + instrument.sample.loop.length,
           );
           instrument.sample.length = sampleEnd;
         }
@@ -201,7 +201,11 @@ export default class ProTracker implements FileFormat {
           }
         }
 
-        instrumentContainer.push({ label: i + " " + instrument.name, data: i, index: i - 1 });
+        instrumentContainer.push({
+          label: i + " " + instrument.name,
+          data: i,
+          index: i - 1,
+        });
       }
     }
     EventBus.trigger(EVENT.instrumentListChange, instrumentContainer);
@@ -216,14 +220,14 @@ export default class ProTracker implements FileFormat {
       patterns,
       restartPosition: 1,
     };
-  };
+  }
 
   //<!--
   write(next?: (file: BinaryStream) => void): void {
     const song = Tracker.getSong();
     if (song == null) {
-        console.log("No song loaded to write!")
-        return;
+      console.log("No song loaded to write!");
+      return;
     }
     const instruments = Tracker.getInstruments();
     const trackCount = Tracker.getTrackCount();
@@ -243,7 +247,7 @@ export default class ProTracker implements FileFormat {
 
     if (Tracker.getInstruments().length > 32) {
       UI.showDialog(
-        "WARNING !!!//This file has more than 31 instruments.//Only the first 31 instruments will be included."
+        "WARNING !!!//This file has more than 31 instruments.//Only the first 31 instruments will be included.",
       );
     }
     const startI = 1;
@@ -342,7 +346,7 @@ export default class ProTracker implements FileFormat {
           file.writeByte(Math.round(d * 127));
         }
         console.log(
-          "write instrument with " + instrument.sample.length + " length"
+          "write instrument with " + instrument.sample.length + " length",
         );
       } else {
         // still write 4 bytes?
@@ -350,7 +354,6 @@ export default class ProTracker implements FileFormat {
     }
 
     if (next) next(file);
-  };
+  }
   //-->
-
 }

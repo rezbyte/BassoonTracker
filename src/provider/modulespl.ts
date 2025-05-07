@@ -1,33 +1,33 @@
-
 import FetchService from "../fetchService";
 import { formatFileSize } from "../lib/util";
 import type { ListBoxItem } from "../ui/components/listbox";
 
 interface Artist {
-  id: number,
-  handle: string,
-  count: number,
+  id: number;
+  handle: string;
+  count: number;
 }
 
 interface Genre {
-  name: string,
-  count: number
+  name: string;
+  count: number;
 }
 
 interface Module {
-  id: number,
-	title: string,
-  author: number,
-  genre: string,
-  rate: number,
-  score: number,
-  format: string,
-  size: number
+  id: number;
+  title: string;
+  author: number;
+  genre: string;
+  rate: number;
+  score: number;
+  format: string;
+  size: number;
 }
 
 class ModulesPl {
   private readonly apiUrl = "https://www.stef.be/bassoontracker/api/mpl/";
-  private readonly proxyUrl = "https://www.stef.be/bassoontracker/api/modules.pl/";
+  private readonly proxyUrl =
+    "https://www.stef.be/bassoontracker/api/modules.pl/";
   private genres: ListBoxItem[] = [];
   private artists: ListBoxItem[] = [];
 
@@ -70,7 +70,7 @@ class ModulesPl {
       default:
         next([]);
     }
-  };
+  }
 
   private loadArtists(next: (items: ListBoxItem[]) => void) {
     if (this.artists.length) {
@@ -86,7 +86,7 @@ class ModulesPl {
               info: artist.count + " >",
               url: "artist/" + artist.id,
               children: [],
-              index: i
+              index: i,
             };
             this.artists.push(item);
           });
@@ -103,13 +103,13 @@ class ModulesPl {
       this.loadFromApi<Genre>("genres", (result) => {
         if (result) {
           result.forEach((genre, i) => {
-           const item = {
+            const item = {
               title: genre.name,
               label: genre.name,
               url: "genre/" + genre.name,
               children: [],
               info: genre.count + " >",
-              index: i
+              index: i,
             };
             this.genres.push(item);
           });
@@ -119,7 +119,11 @@ class ModulesPl {
     }
   }
 
-  private loadGenre(id: string, page: string, next: (items: ListBoxItem[]) => void) {
+  private loadGenre(
+    id: string,
+    page: string,
+    next: (items: ListBoxItem[]) => void,
+  ) {
     let url = "genre/" + id;
     if (page) {
       page = parseInt(page).toString();
@@ -130,14 +134,20 @@ class ModulesPl {
     });
   }
 
-  private loadFromApi<T extends Artist | Genre | Module>(url: string, next: (data: T[] | undefined) => void) {
+  private loadFromApi<T extends Artist | Genre | Module>(
+    url: string,
+    next: (data: T[] | undefined) => void,
+  ) {
     console.log("load from api " + this.apiUrl + url);
     FetchService.json<T[]>(this.apiUrl + url, (data) => {
       next(data);
     });
   }
 
-  private parseModList(data?: Module[], extraInfo?: "rate" | "score"): ListBoxItem[] {
+  private parseModList(
+    data?: Module[],
+    extraInfo?: "rate" | "score",
+  ): ListBoxItem[] {
     const result: ListBoxItem[] = [];
     if (data) {
       data.forEach((mod, i) => {
@@ -152,7 +162,7 @@ class ModulesPl {
           url: this.proxyUrl + mod.id,
           info: info,
           icon: mod.format,
-          index: i
+          index: i,
         });
       });
     }

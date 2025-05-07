@@ -46,7 +46,7 @@ class FriendOSBridge implements HostBridge {
       typeof Application === "object" && Application.initFriendVR;
     if (isFriendUp) console.log("running on FriendUP");
     if (!isFriendUp) return;
-    Application.receiveMessage =  (msg) => {
+    Application.receiveMessage = (msg) => {
       if (msg.type === "bassoontracker") {
         console.log("got message", msg);
 
@@ -62,7 +62,7 @@ class FriendOSBridge implements HostBridge {
               break;
             }
             const file = msg.files[0];
-            if (file  && file.Path) {
+            if (file && file.Path) {
               const url =
                 "/system.library/file/read?sessionid=" +
                 Application.sessionId +
@@ -72,7 +72,7 @@ class FriendOSBridge implements HostBridge {
               Tracker.load(url, false, function () {});
             }
             break;
-          case "getFileName":{
+          case "getFileName": {
             const filename = Tracker.getFileName();
             if (msg.callbackId) {
               console.warn("setting callback");
@@ -121,7 +121,10 @@ class FriendOSBridge implements HostBridge {
 
   sendMessage(msg: Partial<Message> | string) {
     if (this.friendCallBackId) {
-      const finalMsg: Partial<Message> = typeof msg === "string" ? { command: "message", message: msg } : msg || {}
+      const finalMsg: Partial<Message> =
+        typeof msg === "string"
+          ? { command: "message", message: msg }
+          : msg || {};
       finalMsg.type = "callback";
       finalMsg.callback = this.friendCallBackId;
       Application.sendMessage(finalMsg);

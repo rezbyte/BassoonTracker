@@ -1,24 +1,26 @@
 interface BitmapFontConfigBase {
-  image: CanvasImageSource
-  startX: number
-  startY: number
-  charHeight: number
-  spaceWidth?: number
-  margin: number
-  lineSpacing?: number
-  chars?: string
-  onlyUpperCase?: boolean
-  debug?: boolean
+  image: CanvasImageSource;
+  startX: number;
+  startY: number;
+  charHeight: number;
+  spaceWidth?: number;
+  margin: number;
+  lineSpacing?: number;
+  chars?: string;
+  onlyUpperCase?: boolean;
+  debug?: boolean;
 }
 interface FixedWidthBitmapFontConfig extends BitmapFontConfigBase {
-  charWidth: number
-  charsPerLine: number
+  charWidth: number;
+  charsPerLine: number;
 }
 interface DynamicWidthBitmapFontConfig extends BitmapFontConfigBase {
-  charWidth: number[] | string
-  charsPerLine: number[]
+  charWidth: number[] | string;
+  charsPerLine: number[];
 }
-type BitmapFontConfig = FixedWidthBitmapFontConfig | DynamicWidthBitmapFontConfig
+type BitmapFontConfig =
+  | FixedWidthBitmapFontConfig
+  | DynamicWidthBitmapFontConfig;
 
 export default class BitmapFont {
   charWidth: number | number[];
@@ -36,13 +38,16 @@ export default class BitmapFont {
     if (fixedWidth && typeof this.charWidth === "number") {
       return this.charWidth;
     } else if (!fixedWidth && typeof this.charWidth === "object") {
-        return this.charWidth[index];
+      return this.charWidth[index];
     } else {
-      throw new Error(`Invalid CharWidth state in Bitmap font! fixedWidth: ${fixedWidth} typeof charWidth ${typeof this.charWidth}`);
+      throw new Error(
+        `Invalid CharWidth state in Bitmap font! fixedWidth: ${fixedWidth} typeof charWidth ${typeof this.charWidth}`,
+      );
     }
   }
 
-  constructor(config: BitmapFontConfig) { // Formerly named 'generate'
+  constructor(config: BitmapFontConfig) {
+    // Formerly named 'generate'
     const img = config.image;
     const startX = config.startX;
     const startY = config.startY;
@@ -61,7 +66,9 @@ export default class BitmapFont {
     const charHeight = h;
     this.charHeight = h;
 
-    const {fixedWidth, charWidth} = BitmapFont.parseCharWidth(config.charWidth);
+    const { fixedWidth, charWidth } = BitmapFont.parseCharWidth(
+      config.charWidth,
+    );
     this.fixedWidth = fixedWidth;
     this.charWidth = charWidth;
 
@@ -102,7 +109,9 @@ export default class BitmapFont {
           _y += charHeight + lineSpacing;
         }
       } else {
-        throw new Error(`A BitmapFont received a config with conflicting width settings! lineWidth: ${lineWidth}, charWidth ${config.charWidth}`);
+        throw new Error(
+          `A BitmapFont received a config with conflicting width settings! lineWidth: ${lineWidth}, charWidth ${config.charWidth}`,
+        );
       }
 
       myCtx.drawImage(img, x, y, w, h, 0, 0, w, h);
@@ -111,22 +120,25 @@ export default class BitmapFont {
       this.fontArray[charCode] = myCanvas;
       this.widthArray[charCode] = w;
     }
-  };
+  }
 
-  private static parseCharWidth(rawCharWidth: string | number | number[]): {fixedWidth: boolean, charWidth: number[] | number} {
-     switch (typeof rawCharWidth) {
+  private static parseCharWidth(rawCharWidth: string | number | number[]): {
+    fixedWidth: boolean;
+    charWidth: number[] | number;
+  } {
+    switch (typeof rawCharWidth) {
       case "number":
-        return {fixedWidth: true, charWidth: rawCharWidth}
-      case "string": 
+        return { fixedWidth: true, charWidth: rawCharWidth };
+      case "string":
         const splitCharWidth = rawCharWidth.split("");
         const charWidth: number[] = new Array(splitCharWidth.length);
         splitCharWidth.forEach(function (c, index) {
           charWidth[index] = parseInt(c);
         });
-        return {fixedWidth: false, charWidth}
+        return { fixedWidth: false, charWidth };
       case "object":
-        return {fixedWidth: false, charWidth: rawCharWidth}
-     }
+        return { fixedWidth: false, charWidth: rawCharWidth };
+    }
   }
 
   getCharWidthAsFixed(): number {
@@ -149,7 +161,9 @@ export default class BitmapFont {
       const cx2 = c2.getContext("2d");
       const cx3 = c3.getContext("2d");
       if (cx2 == null || cx3 == null) {
-        console.error(`Failed to create canvas context while generating color: ${colorName} for a font`);
+        console.error(
+          `Failed to create canvas context while generating color: ${colorName} for a font`,
+        );
         return;
       }
 
@@ -166,7 +180,7 @@ export default class BitmapFont {
       fontArrayColor[index] = c2;
     });
     this.colors[colorName] = fontArrayColor;
-  };
+  }
 
   getTextWidth(text: string, spacing?: number): number {
     if (this.onlyUpperCase) text = text.toUpperCase();
@@ -180,12 +194,22 @@ export default class BitmapFont {
     }
 
     return w;
-  };
+  }
 
-  write(canvasCtx: CanvasRenderingContext2D, text: string, x?: number, y?: number, spacing?: number, color?: string) {
+  write(
+    canvasCtx: CanvasRenderingContext2D,
+    text: string,
+    x?: number,
+    y?: number,
+    spacing?: number,
+    color?: string,
+  ) {
     if (this.onlyUpperCase) text = text.toUpperCase();
 
-    const colorArray = color == null || this.colors[color] == null ? this.fontArray : this.colors[color];
+    const colorArray =
+      color == null || this.colors[color] == null
+        ? this.fontArray
+        : this.colors[color];
 
     spacing = spacing || this.charSpacing;
     x = x || 0;
@@ -206,6 +230,5 @@ export default class BitmapFont {
 
       _x += w + spacing;
     }
-  };
-
-};
+  }
+}

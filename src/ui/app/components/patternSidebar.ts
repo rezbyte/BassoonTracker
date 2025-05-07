@@ -14,23 +14,24 @@ import { TextAlignment } from "../../basetypes";
 export default class PatternSidebar extends Panel {
   private sideLabel: Label;
   private buttonsSide: Button[];
-  private buttonsSideInfo: { label: string; onClick: () => void; }[];
+  private buttonsSideInfo: { label: string; onClick: () => void }[];
   private pianoButton: Button;
   //private nibblesButton: Button; TODO: Port Nibbles
-  
-  constructor() { // UI.pattern_sidebar
+
+  constructor() {
+    // UI.pattern_sidebar
     super();
     this.setProperties({
       name: "sideButtonPanel",
     });
-  
+
     this.sideLabel = new Label();
     this.sideLabel.setProperties({
       label: "DEMOSONGS:",
       font: UI.fontFT,
     });
     this.addChild(this.sideLabel);
-  
+
     this.buttonsSide = [];
     this.buttonsSideInfo = [
       {
@@ -69,7 +70,7 @@ export default class PatternSidebar extends Panel {
         onClick: () => {
           Tracker.load(
             Host.getRemoteUrl() +
-              "/demomods/hoffman_and_daytripper_-_professional_tracker.mod"
+              "/demomods/hoffman_and_daytripper_-_professional_tracker.mod",
           );
         },
       },
@@ -109,7 +110,7 @@ export default class PatternSidebar extends Panel {
         },
       },
     ];
-  
+
     for (let i = 0; i < this.buttonsSideInfo.length; i++) {
       const buttonSideInfo = this.buttonsSideInfo[i];
       const buttonElm = new Button();
@@ -118,7 +119,7 @@ export default class PatternSidebar extends Panel {
       this.buttonsSide[i] = buttonElm;
       this.addChild(buttonElm);
     }
-  
+
     this.pianoButton = new Button();
     this.pianoButton.setProperties({
       label: "",
@@ -132,7 +133,7 @@ export default class PatternSidebar extends Panel {
       App.doCommand(COMMAND.togglePiano);
     };
     this.addChild(this.pianoButton);
-  
+
     /*this.nibblesButton = new Button();
     this.nibblesButton.setProperties({
       label: "",
@@ -174,7 +175,8 @@ export default class PatternSidebar extends Panel {
       const button = this.buttonsSide[i];
       const buttonTop = i * buttonHeight + this.sideLabel.height;
       let buttonLeft = 0;
-      if (buttonTop > nibblesButtonTop - buttonHeight) { // buttonTop > this.nibblesButton.top - buttonHeight)
+      if (buttonTop > nibblesButtonTop - buttonHeight) {
+        // buttonTop > this.nibblesButton.top - buttonHeight)
         buttonLeft = -500;
       }
 
@@ -198,5 +200,5 @@ export default class PatternSidebar extends Panel {
         font: UI.fontFT,
       });
     }
-  };
+  }
 }

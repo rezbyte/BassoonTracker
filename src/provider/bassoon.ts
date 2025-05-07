@@ -10,7 +10,7 @@ class BassoonProvider {
   private readonly baseUrl = "https://www.stef.be/bassoontracker/api/";
   private processing = false;
 
- putFile() {
+  putFile() {
     const url = this.baseUrl + "storage/put/";
 
     Editor.buildBinary(
@@ -23,9 +23,9 @@ class BassoonProvider {
         FetchService.sendBinary(url, file.buffer, function (result) {
           console.error(result);
         });
-      }
+      },
     );
-  };
+  }
 
   renderFile(fileName: string, toMp3: boolean): void {
     if (this.processing) {
@@ -34,19 +34,22 @@ class BassoonProvider {
     }
 
     this.processing = true;
-    const url = this.baseUrl + "storage/render/" + (Tracker.inFTMode() ? "xm" : "mod");
+    const url =
+      this.baseUrl + "storage/render/" + (Tracker.inFTMode() ? "xm" : "mod");
     fileName = fileName || Tracker.getFileName();
     UI.setStatus("saving file ...", true);
     Logger.info("Rendering " + fileName);
 
     const baseUrl = this.baseUrl;
-    const handleError = (consoleMessage: string, uiMessage?: string) => this.handleError(consoleMessage, uiMessage);
-    const downloadFile = (url: string, filename: string, extention: string) => this.downloadFile(url, filename, extention);
+    const handleError = (consoleMessage: string, uiMessage?: string) =>
+      this.handleError(consoleMessage, uiMessage);
+    const downloadFile = (url: string, filename: string, extention: string) =>
+      this.downloadFile(url, filename, extention);
     Editor.buildBinary(
       Tracker.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,
       function (file: BinaryStream) {
         //const b = new Blob([file.buffer], {type: "application/octet-stream"});
-        
+
         FetchService.sendBinary(url, file.buffer, function (result) {
           if (result === "error") {
             handleError("error saving file");
@@ -57,7 +60,10 @@ class BassoonProvider {
             const url = baseUrl + "storage/convert/" + tempFile;
             FetchService.sendBinary(url, file.buffer, function (result) {
               if (result === "error" || result == undefined) {
-                handleError("error converting file", "Error rendering file ...");
+                handleError(
+                  "error converting file",
+                  "Error rendering file ...",
+                );
               } else {
                 const tempFile = result;
                 if (toMp3) {
@@ -67,7 +73,10 @@ class BassoonProvider {
                   FetchService.sendBinary(url, file.buffer, function (result) {
                     console.error(result);
                     if (result === "error" || result == undefined) {
-                      handleError("error converting file to mp3", "Error converting file to mp3...");
+                      handleError(
+                        "error converting file to mp3",
+                        "Error converting file to mp3...",
+                      );
                     } else {
                       downloadFile(result, fileName, "mp3");
                     }
@@ -79,13 +88,13 @@ class BassoonProvider {
             });
           }
         });
-      }
+      },
     );
-  };
+  }
 
   proxyUrl(url: string): string {
     return this.baseUrl + "proxy?" + encodeURIComponent(url);
-  };
+  }
 
   private handleError(consoleMessage: string, uiMessage?: string): void {
     console.error(consoleMessage);
@@ -111,6 +120,6 @@ class BassoonProvider {
     document.location.href =
       this.baseUrl + "storage/" + url + "?dl=1&name=" + filename;
   }
-};
+}
 
 export default new BassoonProvider();

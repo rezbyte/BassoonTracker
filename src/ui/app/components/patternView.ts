@@ -28,9 +28,9 @@ export default class AppPatternView extends Panel {
   private hasVU: boolean;
   private noteCache: Record<string, HTMLCanvasElement>;
   private noteParamCache: Record<string, HTMLCanvasElement>;
-  private lineNumberCache: Record<string,HTMLCanvasElement>;
-  private range: {start: number[], end: number[], top: number, left: number};
-  private rangeNormalized: {start: number[], end: number[]};
+  private lineNumberCache: Record<string, HTMLCanvasElement>;
+  private range: { start: number[]; end: number[]; top: number; left: number };
+  private rangeNormalized: { start: number[]; end: number[] };
   private rangeCopy: Pattern;
   private hasRange: boolean;
   private trackLeft: number;
@@ -44,8 +44,9 @@ export default class AppPatternView extends Panel {
   private trackVULevelMax: number;
   private startDragPos: number | null;
 
-  constructor(x?: number, y?: number, w?: number, h?: number) { // UI.app_patternView
-    super(x,y,w,h);
+  constructor(x?: number, y?: number, w?: number, h?: number) {
+    // UI.app_patternView
+    super(x, y, w, h);
     this.visibleLines = 0;
     this.visibleTracks = 8;
     this.lineHeight = 13;
@@ -60,23 +61,29 @@ export default class AppPatternView extends Panel {
     this.noteParamCache = {};
     this.lineNumberCache = {};
 
-    this.range = {start: [], end: [], top: 0, left: 0};
-    this.rangeNormalized = {start: [], end: []};
+    this.range = { start: [], end: [], top: 0, left: 0 };
+    this.rangeNormalized = { start: [], end: [] };
     this.rangeCopy = [];
     this.hasRange = false;
 
     this.trackLeft = 0;
     this.margin = 0;
 
-    const width = (w ?? this.width);
+    const width = w ?? this.width;
 
-    this.scrollBar = new Scale9Panel(width - 28, 18, 16, (h ?? this.height) - 3, {
-      img: Y.getImage("bar"),
-      left: 2,
-      top: 2,
-      right: 3,
-      bottom: 3,
-    });
+    this.scrollBar = new Scale9Panel(
+      width - 28,
+      18,
+      16,
+      (h ?? this.height) - 3,
+      {
+        img: Y.getImage("bar"),
+        left: 2,
+        top: 2,
+        right: 3,
+        bottom: 3,
+      },
+    );
 
     this.scrollBar.onDragStart = () => {
       if (Tracker.isPlaying()) return;
@@ -87,12 +94,14 @@ export default class AppPatternView extends Panel {
       if (Tracker.isPlaying()) return;
       if (this.visibleLines && this.scrollBarItemOffset) {
         if (this.scrollBar.startDragIndex === undefined) {
-          console.error("Pattern view scroll bar onDrag() expected startDragIndex!");
+          console.error(
+            "Pattern view scroll bar onDrag() expected startDragIndex!",
+          );
           return;
         }
         const delta = touchData.deltaY;
         let pos = Math.floor(
-          this.scrollBar.startDragIndex + delta / this.scrollBarItemOffset
+          this.scrollBar.startDragIndex + delta / this.scrollBarItemOffset,
         );
         pos = Math.min(pos, this.max - 1);
         pos = Math.max(pos, 0);
@@ -118,7 +127,9 @@ export default class AppPatternView extends Panel {
 
     this.scrollBarHor.onDrag = (touchData) => {
       if (this.scrollBarHor.startDragIndex === undefined) {
-        console.error("Pattern view horizontal scroll bar onDrag() expected startDragIndex!");
+        console.error(
+          "Pattern view horizontal scroll bar onDrag() expected startDragIndex!",
+        );
         return;
       }
       const maxSteps = Tracker.getTrackCount() - this.visibleTracks;
@@ -162,9 +173,12 @@ export default class AppPatternView extends Panel {
 
     EventBus.on(EVENT.trackCountChange, (trackCount: number) => {
       if (this.visibleTracks < trackCount) this.visibleTracks = trackCount;
-      this.startTrack = Math.min(this.startTrack, trackCount - this.visibleTracks);
+      this.startTrack = Math.min(
+        this.startTrack,
+        trackCount - this.visibleTracks,
+      );
       this.startTrack = Math.max(this.startTrack, 0);
-      for(let i = this.fxPanels.length, len = trackCount; i < len; i++) {
+      for (let i = this.fxPanels.length, len = trackCount; i < len; i++) {
         const fxPanel = new FxPanel(i);
         this.fxPanels.push(fxPanel);
         this.addChild(fxPanel);
@@ -194,7 +208,8 @@ export default class AppPatternView extends Panel {
         fxPanel.hide();
       } else {
         let visibleHeight = this.height;
-        const hasHorizontalScrollBar = this.visibleTracks < Tracker.getTrackCount();
+        const hasHorizontalScrollBar =
+          this.visibleTracks < Tracker.getTrackCount();
         if (hasHorizontalScrollBar) visibleHeight -= 24;
 
         fxPanel.setPosition(fxPanel.left, 0);
@@ -215,10 +230,7 @@ export default class AppPatternView extends Panel {
       if (this.isVisible() && currentPattern !== undefined) {
         UI.clearSelection();
         this.range.start = [0, Editor.getCurrentTrack()];
-        this.range.end = [
-          currentPattern.length - 1,
-          Editor.getCurrentTrack(),
-        ];
+        this.range.end = [currentPattern.length - 1, Editor.getCurrentTrack()];
         this.normalizeRange();
         this.hasRange = true;
         this.range.top = this.range.left = 100000;
@@ -241,7 +253,7 @@ export default class AppPatternView extends Panel {
       EventBus.trigger(EVENT.patternHorizontalScrollChange, this.startTrack);
       this.setScrollBarHorPosition();
     }
-  };
+  }
 
   onResize() {
     this.trackLeft = Layout.firstTrackOffsetLeft;
@@ -249,9 +261,11 @@ export default class AppPatternView extends Panel {
     this.visibleTracks = Layout.visibleTracks;
 
     const hasHorizontalScrollBar = this.visibleTracks < Tracker.getTrackCount();
-    const visibleHeight =  hasHorizontalScrollBar ? this.height - 24 : this.height;
+    const visibleHeight = hasHorizontalScrollBar
+      ? this.height - 24
+      : this.height;
 
-    for(let i = 0; i < this.visibleTracks; i++) {
+    for (let i = 0; i < this.visibleTracks; i++) {
       const trackIndex = this.startTrack + i;
       const fxPanel = this.fxPanels[trackIndex];
       if (fxPanel && fxPanel.visible) {
@@ -263,7 +277,7 @@ export default class AppPatternView extends Panel {
         fxPanel.show();
       }
     }
-  };
+  }
 
   render(internal?: boolean) {
     if (!this.isVisible()) return;
@@ -279,7 +293,8 @@ export default class AppPatternView extends Panel {
       if (Layout.trackFont) this.font = Layout.trackFont;
       this.max = Tracker.getPatternLength();
 
-      const hasHorizontalScrollBar = this.visibleTracks < Tracker.getTrackCount();
+      const hasHorizontalScrollBar =
+        this.visibleTracks < Tracker.getTrackCount();
       let visibleHeight = this.height - 30;
 
       this.displayVolume = Tracker.inFTMode();
@@ -346,7 +361,7 @@ export default class AppPatternView extends Panel {
         this.trackVULevelDecay = this.trackVULevelMax / 10;
       }
 
-      for(let i = 0; i < this.visibleTracks; i++) {
+      for (let i = 0; i < this.visibleTracks; i++) {
         const trackIndex = this.startTrack + i;
         isTrackVisible[trackIndex] = !(
           this.fxPanels[trackIndex] && this.fxPanels[trackIndex].visible
@@ -359,16 +374,17 @@ export default class AppPatternView extends Panel {
             trackX,
             0,
             Layout.trackWidth,
-            panelHeight
+            panelHeight,
           );
           this.ctx.drawImage(
             darkPanel,
             trackX,
             panelTop2,
             Layout.trackWidth,
-            panelHeight
+            panelHeight,
           );
-          if (this.fxPanels[trackIndex]) this.fxPanels[trackIndex].left = trackX;
+          if (this.fxPanels[trackIndex])
+            this.fxPanels[trackIndex].left = trackX;
         }
       }
 
@@ -383,7 +399,12 @@ export default class AppPatternView extends Panel {
           this.ctx.fillStyle = "#202E58";
         }
 
-        this.ctx.fillRect(0, this.centerLineTop, this.width - 0 * 2, centerLineHeight);
+        this.ctx.fillRect(
+          0,
+          this.centerLineTop,
+          this.width - 0 * 2,
+          centerLineHeight,
+        );
 
         // draw cursor
         const cursorPos = Editor.getCurrentTrackPosition();
@@ -420,14 +441,19 @@ export default class AppPatternView extends Panel {
 
         //this.ctx.fillStyle = "rgba(231,198,46,.5)";
         this.ctx.fillStyle = "rgba(220,220,220,.3)";
-        this.ctx.fillRect(cursorX, this.centerLineTop, cursorWidth, this.lineHeight + 2);
+        this.ctx.fillRect(
+          cursorX,
+          this.centerLineTop,
+          cursorWidth,
+          this.lineHeight + 2,
+        );
 
         this.ctx.fillStyle = "rgba(200,150,70,.3)";
         const charWidth = this.font.getCharWidthAsFixed();
         let noteWidth = charWidth * 8 + 14;
         if (this.displayVolume) noteWidth += charWidth * 2 + 2;
 
-        for(let i = visibleStart; i < visibleEnd; i++) {
+        for (let i = visibleStart; i < visibleEnd; i++) {
           if (i >= 0 && i < Tracker.getPatternLength()) {
             const step = pattern[i];
             let y = baseY + (i - visibleStart) * this.lineHeight;
@@ -448,7 +474,7 @@ export default class AppPatternView extends Panel {
               this.renderLineNumber(i, patternNumberLeft, y);
             }
 
-            for(let j = 0; j < this.visibleTracks; j++) {
+            for (let j = 0; j < this.visibleTracks; j++) {
               const trackIndex = j + this.startTrack;
               if (
                 isTrackVisible[trackIndex] &&
@@ -458,11 +484,14 @@ export default class AppPatternView extends Panel {
                 let x;
                 if (lineNumbersToTheLeft) {
                   // center text in pattern
-                  const trackX = this.trackLeft + j * (Layout.trackWidth + this.margin);
+                  const trackX =
+                    this.trackLeft + j * (Layout.trackWidth + this.margin);
                   x = trackX + ((Layout.trackWidth - textWidth) >> 1);
                 } else {
                   x =
-                    this.trackLeft + initialTrackTextOffset + j * Layout.trackWidth;
+                    this.trackLeft +
+                    initialTrackTextOffset +
+                    j * Layout.trackWidth;
                 }
 
                 if (
@@ -491,7 +520,7 @@ export default class AppPatternView extends Panel {
                       x - 12,
                       this.centerLineTop,
                       j,
-                      index + "." + patternPos
+                      index + "." + patternPos,
                     );
                   }
                 }
@@ -510,7 +539,7 @@ export default class AppPatternView extends Panel {
         }
       }
 
-      for(let j = 0; j < this.visibleTracks; j++) {
+      for (let j = 0; j < this.visibleTracks; j++) {
         const trackIndex = j + this.startTrack;
         if (!isTrackVisible[trackIndex]) {
           this.fxPanels[trackIndex].render();
@@ -528,16 +557,23 @@ export default class AppPatternView extends Panel {
       for (let j = 0; j < this.visibleTracks; j++) {
         const trackIndex = j + this.startTrack;
         if (isTrackVisible[trackIndex]) {
-          const trackX = this.trackLeft + j * (Layout.trackWidth + this.margin) + 2;
+          const trackX =
+            this.trackLeft + j * (Layout.trackWidth + this.margin) + 2;
           this.drawText("" + (trackIndex + 1), trackX, 2);
         }
       }
     }
     this.needsRendering = false;
 
-    this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    this.parentCtx.drawImage(
+      this.canvas,
+      this.left,
+      this.top,
+      this.width,
+      this.height,
+    );
     return undefined;
-  };
+  }
 
   private renderNote(note: Note, x: number, y: number) {
     let id: string;
@@ -555,7 +591,9 @@ export default class AppPatternView extends Panel {
       canvas.width = this.font.getCharWidthAsFixed() * 3 + 2;
       const c = canvas.getContext("2d");
       if (c === null) {
-        console.error("Failed to get a canvas 2D context to render a note in the pattern view!");
+        console.error(
+          "Failed to get a canvas 2D context to render a note in the pattern view!",
+        );
         return;
       }
 
@@ -579,7 +617,7 @@ export default class AppPatternView extends Panel {
         }
       } else {
         let baseNotePeriod = periodNoteTable[note.period];
-        noteString = baseNotePeriod ? baseNotePeriod .name : "---";
+        noteString = baseNotePeriod ? baseNotePeriod.name : "---";
       }
 
       this.font.write(c, noteString, 0, 0, 0);
@@ -611,10 +649,12 @@ export default class AppPatternView extends Panel {
 
       const canvas = document.createElement("canvas");
       canvas.height = this.lineHeight;
-      canvas.width = charWidth  * 7 + 10;
+      canvas.width = charWidth * 7 + 10;
       const c = canvas.getContext("2d");
       if (c === null) {
-        console.error("Failed to get a canvas 2D context to render a pattern view note parameter!");
+        console.error(
+          "Failed to get a canvas 2D context to render a pattern view note parameter!",
+        );
         return;
       }
 
@@ -634,7 +674,7 @@ export default class AppPatternView extends Panel {
           let vuX = (value >> 4).toString(16).toUpperCase();
           let vuY = (value & 0x0f).toString(16).toUpperCase();
 
-          const mapping: Record<string,string> = {
+          const mapping: Record<string, string> = {
             5: "-",
             6: "+",
             7: "↓",
@@ -672,7 +712,13 @@ export default class AppPatternView extends Panel {
     this.ctx.drawImage(this.noteParamCache[id], x, y);
   }
 
-  private renderVU(note: Note, x: number, y: number, track: number, index: string) {
+  private renderVU(
+    note: Note,
+    x: number,
+    y: number,
+    track: number,
+    index: string,
+  ) {
     if (
       Tracker.isPlaying() &&
       note &&
@@ -698,20 +744,20 @@ export default class AppPatternView extends Panel {
       if (Settings.vubars === "colour") {
         const bar = Y.getImage("vubar");
         if (bar) {
-        this.ctx.drawImage(
-          bar,
-          0,
-          100 - sHeight,
-          26,
-          sHeight,
-          x,
-          y - vuHeight,
-          10,
-          vuHeight
-        );
-      } else {
-        console.error("Failed to get vubar image for a VU bar!");
-      }
+          this.ctx.drawImage(
+            bar,
+            0,
+            100 - sHeight,
+            26,
+            sHeight,
+            x,
+            y - vuHeight,
+            10,
+            vuHeight,
+          );
+        } else {
+          console.error("Failed to get vubar image for a VU bar!");
+        }
       } else if (Settings.vubars === "trans") {
         this.ctx.fillStyle = "rgba(120,190,255,0.3)";
         this.ctx.fillRect(x, y - vuHeight, 10, vuHeight);
@@ -736,7 +782,9 @@ export default class AppPatternView extends Panel {
       canvas.width = charWidth * 3;
       const c = canvas.getContext("2d");
       if (c === null) {
-        console.error("Failed to get a canvas 2D context to render a pattern view line number!");
+        console.error(
+          "Failed to get a canvas 2D context to render a pattern view line number!",
+        );
         return;
       }
 
@@ -765,7 +813,11 @@ export default class AppPatternView extends Panel {
     return h;
   }
 
-  private formatHexExtended(i: number, length?: number, padString?: string): string {
+  private formatHexExtended(
+    i: number,
+    length?: number,
+    padString?: string,
+  ): string {
     let h = i.toString(36).toUpperCase();
     if (length && h.length < length) {
       padString = padString || "0";
@@ -806,10 +858,13 @@ export default class AppPatternView extends Panel {
 
   private setScrollBarHorPosition() {
     const max = this.width;
-    const width = Math.floor((max / Tracker.getTrackCount()) * this.visibleTracks);
+    const width = Math.floor(
+      (max / Tracker.getTrackCount()) * this.visibleTracks,
+    );
     const step = (max - width) / (Tracker.getTrackCount() - this.visibleTracks);
 
-    const top = this.visibleTracks >= Tracker.getTrackCount() ? -200 : this.height - 20;
+    const top =
+      this.visibleTracks >= Tracker.getTrackCount() ? -200 : this.height - 20;
 
     this.scrollBarHor.setProperties({
       top: top,
@@ -826,7 +881,7 @@ export default class AppPatternView extends Panel {
     } else {
       if (pos < this.max - 1) Tracker.moveCurrentPatternPos(1);
     }
-  };
+  }
 
   onDragStart(touchData: Touch) {
     this.scrollBarHor.startDragIndex = this.startTrack;
@@ -836,16 +891,20 @@ export default class AppPatternView extends Panel {
     if (touchData.isMeta || Tracker.getIsRecording()) {
       const track = Math.floor(
         (touchData.x - Layout.firstTrackOffsetLeft) /
-          (Layout.trackWidth + Layout.trackMargin)
+          (Layout.trackWidth + Layout.trackMargin),
       );
       const stepsPerTrack = Editor.getStepsPerTrack();
-      Editor.setCurrentCursorPosition((this.startTrack + track) * stepsPerTrack);
+      Editor.setCurrentCursorPosition(
+        (this.startTrack + track) * stepsPerTrack,
+      );
 
       UI.clearSelection();
       const startDragTrackX =
         track * (Layout.trackWidth + Layout.trackMargin) +
         Layout.firstTrackOffsetLeft;
-      const offsetY = Math.floor((touchData.y - this.centerLineTop) / this.lineHeight);
+      const offsetY = Math.floor(
+        (touchData.y - this.centerLineTop) / this.lineHeight,
+      );
       this.range.start = [
         Tracker.getCurrentPatternPos() + offsetY,
         Editor.getCurrentTrack(),
@@ -854,7 +913,7 @@ export default class AppPatternView extends Panel {
       this.range.top = this.range.left = 100000;
       this.refresh();
     }
-  };
+  }
 
   onDrag(touchData: Drag) {
     if (this.startDragPos === null) {
@@ -866,7 +925,9 @@ export default class AppPatternView extends Panel {
       !(touchData.isMeta || Tracker.getIsRecording())
     ) {
       if (this.scrollBarHor.startDragIndex === undefined) {
-        console.error("Pattern view onDrag() expected scrollBarHor.startDragIndex!");
+        console.error(
+          "Pattern view onDrag() expected scrollBarHor.startDragIndex!",
+        );
         return;
       }
       const maxSteps = Tracker.getTrackCount() - this.visibleTracks;
@@ -887,32 +948,35 @@ export default class AppPatternView extends Panel {
       this.hasRange = true;
       delta = Math.floor(touchData.deltaY / this.lineHeight);
       const deltaX = Math.floor(touchData.deltaX / Layout.trackWidth);
-      this.range.end = [this.range.start[0] + delta, Editor.getCurrentTrack() + deltaX];
+      this.range.end = [
+        this.range.start[0] + delta,
+        Editor.getCurrentTrack() + deltaX,
+      ];
       this.normalizeRange();
       this.refresh();
     } else {
       Tracker.setCurrentPatternPos(targetPos);
     }
-  };
+  }
 
   onTouchUp() {
     if (this.hasRange) {
       this.showSelectionUI();
     }
-  };
+  }
 
   onClick(touchData: Touch) {
     const track = Math.floor(
       (touchData.x - Layout.firstTrackOffsetLeft) /
-        (Layout.trackWidth + Layout.trackMargin)
+        (Layout.trackWidth + Layout.trackMargin),
     );
     const stepsPerTrack = Editor.getStepsPerTrack();
     Editor.setCurrentCursorPosition((this.startTrack + track) * stepsPerTrack);
-  };
+  }
 
   getStartTrack(): number {
     return this.startTrack;
-  };
+  }
 
   processSelection(state: SELECTION) {
     if (!this.isVisible()) return;
@@ -926,7 +990,7 @@ export default class AppPatternView extends Panel {
         const pattern = Tracker.getCurrentPatternData();
         if (pattern && this.hasRange) {
           const editAction = StateManager.createRangeUndo(
-            Tracker.getCurrentPattern()
+            Tracker.getCurrentPattern(),
           );
           editAction.name = "Clear Selection";
           for (
@@ -990,7 +1054,7 @@ export default class AppPatternView extends Panel {
 
             // clear
             const editAction = StateManager.createRangeUndo(
-              Tracker.getCurrentPattern()
+              Tracker.getCurrentPattern(),
             );
             editAction.name = "Cut Selection";
             for (
@@ -1021,14 +1085,14 @@ export default class AppPatternView extends Panel {
         const pattern = Tracker.getCurrentPatternData();
         if (pattern && this.hasRange && this.rangeCopy.length) {
           const editAction = StateManager.createRangeUndo(
-            Tracker.getCurrentPattern()
+            Tracker.getCurrentPattern(),
           );
           editAction.name = "Paste Selection";
-          for(let i = 0; i < this.rangeCopy.length; i++) {
+          for (let i = 0; i < this.rangeCopy.length; i++) {
             const step = pattern[this.rangeNormalized.start[0] + i];
             const stepCopy = this.rangeCopy[i];
             if (step) {
-              for(let j = 0; j < stepCopy.length; j++) {
+              for (let j = 0; j < stepCopy.length; j++) {
                 const trackIndex = this.rangeNormalized.start[1] + j;
                 let note = step[trackIndex];
                 if (!note && trackIndex < Tracker.getTrackCount()) {
@@ -1041,7 +1105,7 @@ export default class AppPatternView extends Panel {
                     editAction,
                     trackIndex,
                     this.rangeNormalized.start[0] + i,
-                    note
+                    note,
                   );
                   note.populate(stepCopy[j]);
                 }
@@ -1062,7 +1126,7 @@ export default class AppPatternView extends Panel {
         this.refresh();
         break;
     }
-  };
+  }
 
   showSelectionUI() {
     UI.setSelection(this.processSelection.bind(this));
@@ -1098,14 +1162,14 @@ export default class AppPatternView extends Panel {
       x: this.range.left + this.left + (this.parent?.left ?? 0),
       y: this.range.top + this.top + (this.parent?.top ?? 0),
     });
-  };
+  }
 
   private normalizeRange() {
     this.rangeNormalized = {
       start: [this.range.start[0], this.range.start[1]],
       end: [this.range.end[0], this.range.end[1]],
     };
-    for(let i = 0; i < 2; i++) {
+    for (let i = 0; i < 2; i++) {
       if (this.range.start[i] > this.range.end[i]) {
         this.rangeNormalized.start[i] = this.range.end[i];
         this.rangeNormalized.end[i] = this.range.start[i];
@@ -1123,7 +1187,10 @@ export default class AppPatternView extends Panel {
       this.showSelectionUI();
       this.refresh();
     } else {
-      this.range.end = [Tracker.getCurrentPatternPos(), Editor.getCurrentTrack()];
+      this.range.end = [
+        Tracker.getCurrentPatternPos(),
+        Editor.getCurrentTrack(),
+      ];
       this.normalizeRange();
       this.refresh();
     }

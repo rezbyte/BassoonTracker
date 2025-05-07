@@ -1,4 +1,4 @@
-import { EVENT, MODULETYPE,  TRACKERMODE } from "./enum";
+import { EVENT, MODULETYPE, TRACKERMODE } from "./enum";
 import EventBus from "./eventBus";
 import Tracker from "./tracker";
 import StateManager, { UndoWithValue } from "./ui/stateManager";
@@ -12,8 +12,8 @@ import { BinaryStream } from "./filesystem";
 import { UI } from "./ui/main";
 import Instrument from "./models/instrument";
 import { getUrlParameter } from "./lib/util";
-import Host from "./host"
-import BassoonProvider from "./provider/bassoon"
+import Host from "./host";
+import BassoonProvider from "./provider/bassoon";
 import { ModalDialog } from "./ui/components/modalDialog";
 import FastTracker from "./fileformats/fasttracker";
 import ProTracker from "./fileformats/protracker";
@@ -28,31 +28,35 @@ class Editor {
   private prevCursorPosition?: number;
   private currentPattern = 0;
   private currentPatternPos = 0;
-  private pasteBuffer: {track: Note[], pattern: Pattern} = {track: [], pattern: []};
+  private pasteBuffer: { track: Note[]; pattern: Pattern } = {
+    track: [],
+    pattern: [],
+  };
 
   constructor() {
     const editor = this;
     EventBus.on(EVENT.trackerModeChanged, () => {
       editor.setCurrentTrackPosition(0);
     });
-  
+
     EventBus.on(EVENT.patternChange, (pattern: number) => {
       editor.currentPattern = pattern;
     });
-  
+
     EventBus.on(EVENT.patternPosChange, (positions) => {
       editor.currentPatternPos = positions.current;
     });
-  
+
     EventBus.on(EVENT.trackCountChange, (trackCount: number) => {
       const max = trackCount * editor.getStepsPerTrack();
-      if (editor.currentCursorPosition >= max) editor.setCurrentTrack(trackCount - 1);
+      if (editor.currentCursorPosition >= max)
+        editor.setCurrentTrack(trackCount - 1);
     });
   }
 
   getStepsPerTrack(): 8 | 6 {
     return Tracker.inFTMode() ? 8 : 6;
-  };
+  }
 
   setCurrentCursorPosition(index: number) {
     this.currentCursorPosition = index;
@@ -65,10 +69,10 @@ class Editor {
       EventBus.trigger(EVENT.cursorPositionChange, this.currentCursorPosition);
     }
     this.prevCursorPosition = this.currentCursorPosition;
-  };
+  }
   getCurrentCursorPosition(): number {
     return this.currentCursorPosition;
-  };
+  }
   moveCursorPosition(amount: number) {
     const stepsPerTrack = this.getStepsPerTrack();
 
@@ -77,26 +81,33 @@ class Editor {
     if (newPosition > max) newPosition = 0;
     if (newPosition < 0) newPosition = max;
     this.setCurrentCursorPosition(newPosition);
-  };
+  }
   getCurrentTrack(): number {
     return this.currentTrack;
-  };
+  }
   setCurrentTrack(track: number) {
     const stepsPerTrack = this.getStepsPerTrack();
-    this.setCurrentCursorPosition(track * stepsPerTrack + this.currentTrackPosition);
-  };
+    this.setCurrentCursorPosition(
+      track * stepsPerTrack + this.currentTrackPosition,
+    );
+  }
   getCurrentTrackPosition(): number {
     return this.currentTrackPosition;
-  };
+  }
   setCurrentTrackPosition(position: number) {
     const stepsPerTrack = this.getStepsPerTrack();
     this.setCurrentCursorPosition(this.currentTrack * stepsPerTrack + position);
-  };
+  }
 
-  putNote(instrument: number, period: number, noteIndex?: number, volume?: number) {
+  putNote(
+    instrument: number,
+    period: number,
+    noteIndex?: number,
+    volume?: number,
+  ) {
     const song = Tracker.getSong();
     if (song == null) {
-      console.error("Need a song loaded to insert a note!")
+      console.error("Need a song loaded to insert a note!");
       return;
     }
     const note =
@@ -107,7 +118,7 @@ class Editor {
       this.currentPattern,
       this.currentTrack,
       this.currentPatternPos,
-      note
+      note,
     );
 
     if (note) {
@@ -134,12 +145,12 @@ class Editor {
       this.currentTrack
     ] = note;
     EventBus.trigger(EVENT.patternChange, this.currentPattern);
-  };
+  }
 
-  putNoteParam (pos: number, value: number) {
+  putNoteParam(pos: number, value: number) {
     const song = Tracker.getSong();
     if (song == null) {
-      console.error("Need a song loaded to insert note parameters!")
+      console.error("Need a song loaded to insert note parameters!");
       return;
     }
     let x, y;
@@ -151,7 +162,7 @@ class Editor {
       this.currentPattern,
       this.currentTrack,
       this.currentPatternPos,
-      note
+      note,
     );
     if (note) {
       if (pos == 1 || pos == 2) {
@@ -198,13 +209,13 @@ class Editor {
       this.currentTrack
     ] = note;
     EventBus.trigger(EVENT.patternChange, this.currentPattern);
-  };
+  }
 
   clearTrack() {
     const song = Tracker.getSong();
     const currentPatternData = Tracker.getCurrentPatternData();
     if (song == null || currentPatternData == null) {
-      console.error("Cannot clear track without a song loaded to clear from!")
+      console.error("Cannot clear track without a song loaded to clear from!");
       return;
     }
     const length = currentPatternData.length;
@@ -219,12 +230,12 @@ class Editor {
     }
     StateManager.registerEdit(editAction);
     EventBus.trigger(EVENT.patternChange, this.currentPattern);
-  };
+  }
   clearPattern() {
     const song = Tracker.getSong();
     const currentPatternData = Tracker.getCurrentPatternData();
     if (song == null || currentPatternData == null) {
-      console.error("Cannot clear track without a song loaded to clear from!")
+      console.error("Cannot clear track without a song loaded to clear from!");
       return;
     }
     const length = currentPatternData.length;
@@ -241,7 +252,7 @@ class Editor {
     }
     StateManager.registerEdit(editAction);
     EventBus.trigger(EVENT.patternChange, this.currentPattern);
-  };
+  }
   clearSong() {
     const song = Tracker.getSong();
     if (song == null) return;
@@ -265,7 +276,7 @@ class Editor {
 
     EventBus.trigger(EVENT.songPropertyChange, song);
     EventBus.trigger(EVENT.patternTableChange);
-  };
+  }
 
   copyTrack(trackNumber: undefined): undefined;
   copyTrack(trackNumber: number): Note[];
@@ -273,7 +284,7 @@ class Editor {
     const song = Tracker.getSong();
     const currentPatternData = Tracker.getCurrentPatternData();
     if (song == null || currentPatternData == null) {
-      console.error("Cannot copy track from song because no song is loaded!")
+      console.error("Cannot copy track from song because no song is loaded!");
       return;
     }
     const hasTracknumber = typeof trackNumber != "undefined";
@@ -282,10 +293,8 @@ class Editor {
     const data = [];
 
     for (let i = 0; i < length; i++) {
-      
       const note =
-        song.patterns[this.currentPattern][i][trackNumber!] ||
-        new Note();
+        song.patterns[this.currentPattern][i][trackNumber!] || new Note();
       data.push(note.duplicate());
     }
     if (hasTracknumber) {
@@ -293,7 +302,7 @@ class Editor {
     } else {
       this.pasteBuffer.track = data;
     }
-  };
+  }
 
   copyPattern() {
     const data = [];
@@ -303,17 +312,21 @@ class Editor {
       data.push(row);
     }
     this.pasteBuffer.pattern = data;
-  };
+  }
 
   getPasteData() {
     return this.pasteBuffer;
-  };
+  }
 
-  pasteTrack(trackNumber?: number, trackData?: Note[], parentEditAction?: UndoWithValue): boolean {
+  pasteTrack(
+    trackNumber?: number,
+    trackData?: Note[],
+    parentEditAction?: UndoWithValue,
+  ): boolean {
     const song = Tracker.getSong();
     const currentPatternData = Tracker.getCurrentPatternData();
     if (song == null || currentPatternData == null) {
-      console.error("Cannot paste track to song because no song is loaded!")
+      console.error("Cannot paste track to song because no song is loaded!");
       return false;
     }
     const withoutTracknumber = trackNumber === undefined;
@@ -341,7 +354,8 @@ class Editor {
         note.populate(source);
       }
 
-      if (withoutTracknumber) EventBus.trigger(EVENT.patternChange, this.currentPattern);
+      if (withoutTracknumber)
+        EventBus.trigger(EVENT.patternChange, this.currentPattern);
       if (!parentEditAction) {
         StateManager.registerEdit(editAction);
       }
@@ -349,7 +363,7 @@ class Editor {
     } else {
       return false;
     }
-  };
+  }
 
   pastePattern(): boolean {
     const data = this.pasteBuffer.pattern;
@@ -380,12 +394,12 @@ class Editor {
     // }
     // StateManager.registerEdit(editAction);
     // EventBus.trigger(EVENT.patternChange, currentPattern);
-  };
+  }
 
   insertNote() {
     const song = Tracker.getSong();
     if (song == null) {
-      console.error("Cannot insert note into song because no song is loaded!")
+      console.error("Cannot insert note into song because no song is loaded!");
       return false;
     }
     const end = song.patterns[this.currentPattern].length - 2;
@@ -410,12 +424,12 @@ class Editor {
     if (from) from.clear();
 
     EventBus.trigger(EVENT.patternChange, this.currentPattern);
-  };
+  }
 
   removeNote(track?: number, step?: number) {
     const song = Tracker.getSong();
     if (song == null) {
-      console.error("Cannot remove a note when no song is loaded!")
+      console.error("Cannot remove a note when no song is loaded!");
       return;
     }
 
@@ -439,17 +453,16 @@ class Editor {
       to.index = from.index;
     }
 
-    
     const from = song.patterns[this.currentPattern][end][track];
     if (from) from.clear();
 
     EventBus.trigger(EVENT.patternChange, this.currentPattern);
-  };
+  }
 
   addToPatternTable(index?: number, patternIndex?: number) {
     const song = Tracker.getSong();
     if (song == null) {
-      console.error("Cannot add to the pattern table without a song loaded!")
+      console.error("Cannot add to the pattern table without a song loaded!");
       return;
     }
     if (typeof index == "undefined") index = song.length;
@@ -468,12 +481,14 @@ class Editor {
 
     EventBus.trigger(EVENT.songPropertyChange, song);
     EventBus.trigger(EVENT.patternTableChange);
-  };
+  }
 
   removeFromPatternTable(index?: number) {
     const song = Tracker.getSong();
     if (song == null) {
-      console.error("Cannot remove a pattern from the pattern table without a song loaded!");
+      console.error(
+        "Cannot remove a pattern from the pattern table without a song loaded!",
+      );
       return;
     }
     if (song.length < 2) return;
@@ -496,7 +511,7 @@ class Editor {
 
     EventBus.trigger(EVENT.songPropertyChange, song);
     EventBus.trigger(EVENT.patternTableChange);
-  };
+  }
 
   renderTrackToBuffer(fileName?: string, target?: string) {
     // TODO: timing is off when not played first?
@@ -505,7 +520,7 @@ class Editor {
     const song = Tracker.getSong();
     const currentPatternData = Tracker.getCurrentPatternData();
     if (song == null || currentPatternData == null) {
-      console.error("Need a song loaded to render a track to buffer!")
+      console.error("Need a song loaded to render a track to buffer!");
       return;
     }
     let step = 0;
@@ -557,8 +572,7 @@ class Editor {
         const b = new Blob([result], { type: "octet/stream" });
         fileName =
           fileName ||
-          song.title.replace(/ /g, "-").replace(/\W/g, "") +
-            ".wav" ||
+          song.title.replace(/ /g, "-").replace(/\W/g, "") + ".wav" ||
           "module-export.wav";
 
         //if (target === "dropbox"){
@@ -570,7 +584,7 @@ class Editor {
         this.buffer2Sample(renderedBuffer);
       }
     });
-  };
+  }
 
   save(filename: string | undefined, target: string | ((b: Blob) => void)) {
     UI.setStatus("Exporting ...", true);
@@ -600,9 +614,9 @@ class Editor {
           saveAs(b, fileName);
           UI.setStatus("");
         }
-      }
+      },
     );
-  };
+  }
 
   importSample(file: BinaryStream, name: string) {
     console.log(
@@ -611,7 +625,7 @@ class Editor {
         " with length of " +
         file.length +
         " bytes to index " +
-        Tracker.getCurrentInstrumentIndex()
+        Tracker.getCurrentInstrumentIndex(),
     );
 
     const instrument = Tracker.getCurrentInstrument() || new Instrument();
@@ -629,22 +643,22 @@ class Editor {
       // some decoders are async: retrigger event on callback
       EventBus.trigger(
         EVENT.instrumentChange,
-        Tracker.getCurrentInstrumentIndex()
+        Tracker.getCurrentInstrumentIndex(),
       );
       EventBus.trigger(
         EVENT.instrumentNameChange,
-        Tracker.getCurrentInstrumentIndex()
+        Tracker.getCurrentInstrumentIndex(),
       );
       checkSample();
     });
 
     EventBus.trigger(
       EVENT.instrumentChange,
-      Tracker.getCurrentInstrumentIndex()
+      Tracker.getCurrentInstrumentIndex(),
     );
     EventBus.trigger(
       EVENT.instrumentNameChange,
-      Tracker.getCurrentInstrumentIndex()
+      Tracker.getCurrentInstrumentIndex(),
     );
 
     function checkSample() {
@@ -662,17 +676,17 @@ class Editor {
           dialog.onClick = dialog.close;
 
           dialog.setText(
-            "Warning//The maximum sample length in .MOD format is 128kb//If you save in .MOD format/this sample will be truncated.//Please try downsampling or trimming the sample/to below 131072 bytes/or switch to .XM format"
+            "Warning//The maximum sample length in .MOD format is 128kb//If you save in .MOD format/this sample will be truncated.//Please try downsampling or trimming the sample/to below 131072 bytes/or switch to .XM format",
           );
 
           UI.setModalElement(dialog);
         }
       }
     }
-  };
+  }
 
   buffer2Sample(buffer: AudioBuffer) {
-    const instrument = Tracker.getCurrentInstrument() || new Instrument;
+    const instrument = Tracker.getCurrentInstrument() || new Instrument();
     const name = "pattern " + Tracker.getCurrentPattern();
     instrument.name = name;
     instrument.sample.loop.start = 0;
@@ -698,13 +712,13 @@ class Editor {
 
     EventBus.trigger(
       EVENT.instrumentChange,
-      Tracker.getCurrentInstrumentIndex()
+      Tracker.getCurrentInstrumentIndex(),
     );
     EventBus.trigger(
       EVENT.instrumentNameChange,
-      Tracker.getCurrentInstrumentIndex()
+      Tracker.getCurrentInstrumentIndex(),
     );
-  };
+  }
 
   // returns a binary stream
   buildBinary(type: MODULETYPE, next: (file: BinaryStream) => void) {
@@ -720,7 +734,7 @@ class Editor {
     }
 
     if (writer) writer.write(next);
-  };
+  }
 
   loadInitialFile() {
     // load demo mod at startup
@@ -745,8 +759,7 @@ class Editor {
         initialFile = Host.getBaseUrl() + "/demomods/Tinytune.mod";
     }
     if (initialFile) Tracker.load(initialFile, true, undefined, true);
-  };
-
-};
+  }
+}
 
 export default new Editor();

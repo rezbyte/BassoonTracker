@@ -13,7 +13,6 @@ export default class SoundTracker implements FileFormat {
     Tracker.useLinearFrequency = false;
     Tracker.clearInstruments(15);
 
-
     const patternLength = 64;
     const instrumentCount = 15;
 
@@ -25,7 +24,7 @@ export default class SoundTracker implements FileFormat {
     const title = file.readString(20, 0);
 
     let sampleDataOffset = 0;
-    for ( let i = 1; i <= instrumentCount; ++i) {
+    for (let i = 1; i <= instrumentCount; ++i) {
       const sampleName = file.readString(22);
       const sampleLength = file.readWord(); // in words
 
@@ -110,7 +109,7 @@ export default class SoundTracker implements FileFormat {
             " with length of " +
             instrument.sample.length +
             " bytes and repeat length of " +
-            instrument.sample.loop.length
+            instrument.sample.loop.length,
         );
 
         const sampleEnd = instrument.sample.length;
@@ -122,7 +121,11 @@ export default class SoundTracker implements FileFormat {
           instrument.sample.data.push(b / 127);
         }
 
-        instrumentContainer.push({ label: i + " " + instrument.name, data: i, index: i - 1 });
+        instrumentContainer.push({
+          label: i + " " + instrument.name,
+          data: i,
+          index: i - 1,
+        });
       }
     }
     EventBus.trigger(EVENT.instrumentListChange, instrumentContainer);
