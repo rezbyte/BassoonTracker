@@ -400,11 +400,11 @@ export default class SampleView extends Panel {
       {
         label: "Play",
         onDown: () => {
-          Input.handleNoteOn(Input.getPrevIndex());
+          Input.keyboard.handleNoteOn(Input.keyboard.getPrevIndex());
         },
         onUp: () => {
-          Input.handleNoteOff(Input.getPrevIndex());
-          Input.clearInputNotes();
+          Input.keyboard.handleNoteOff(Input.keyboard.getPrevIndex());
+          Input.keyboard.clearInputNotes();
           this.waveForm.stop();
         },
       },
@@ -414,8 +414,8 @@ export default class SampleView extends Panel {
           this.waveForm.playSection(RANGE.range);
         },
         onUp: () => {
-          Input.handleNoteOff(Input.getPrevIndex());
-          Input.clearInputNotes();
+          Input.keyboard.handleNoteOff(Input.keyboard.getPrevIndex());
+          Input.keyboard.clearInputNotes();
           this.waveForm.stop();
         },
       },
@@ -425,8 +425,8 @@ export default class SampleView extends Panel {
           this.waveForm.playSection(RANGE.loop);
         },
         onUp: () => {
-          Input.handleNoteOff(Input.getPrevIndex());
-          Input.clearInputNotes();
+          Input.keyboard.handleNoteOff(Input.keyboard.getPrevIndex());
+          Input.keyboard.clearInputNotes();
           this.waveForm.stop();
         },
       },
@@ -435,7 +435,7 @@ export default class SampleView extends Panel {
         label: "Stop",
         onClick: () => {
           //App.doCommand(COMMAND.showBottomMain);
-          Input.clearInputNotes();
+          Input.keyboard.clearInputNotes();
           this.waveForm.stop();
         },
       },

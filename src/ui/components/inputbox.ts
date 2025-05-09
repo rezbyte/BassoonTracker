@@ -224,7 +224,7 @@ export default class InputBox
         break;
       case 89: ///y - redo
       case 90: //z - undo
-        if (Input.isMetaKeyDown()) {
+        if (Input.keyboard.isMetaKeyDown()) {
           this.deActivate();
           return;
         }

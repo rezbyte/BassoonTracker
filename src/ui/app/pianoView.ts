@@ -6,8 +6,7 @@ import SpinBox from "../spinBox";
 import { COMMAND, EVENT } from "../../enum";
 import EventBus from "../../eventBus";
 import App from "../../app";
-import Tracker from "../../tracker";
-import Input, { DEFAULT_OCTAVE, Touch } from "../input";
+import Input, { Touch } from "../input";
 import { UI } from "../main";
 
 export default class AppPianoView extends AppPanelContainer {
@@ -24,12 +23,10 @@ export default class AppPianoView extends AppPanelContainer {
   private bKeyImgDown: HTMLCanvasElement;
   private keyTop: number;
   private bKeyHeight: number;
-  private octave: number;
-  private maxOctave: number;
-  private minOctave: number;
   private closeButton: Button;
   private octaveBox: SpinBox;
   //private innerHeight: number;
+  
   constructor() {
     // UI.app_pianoView
     super(200);
@@ -52,9 +49,6 @@ export default class AppPianoView extends AppPanelContainer {
 
     this.keyTop = 30;
     this.bKeyHeight = 0;
-    this.octave = DEFAULT_OCTAVE;
-    this.maxOctave = 3;
-    this.minOctave = 1;
 
     this.closeButton = Assets.generate("button20_20");
     this.closeButton.setLabel("x");
@@ -68,15 +62,15 @@ export default class AppPianoView extends AppPanelContainer {
       name: "Octave",
       label: "Octave",
       value: 1,
-      max: this.maxOctave,
-      min: this.minOctave,
+      max: Input.octaveHandler.getMaxOctave(),
+      min: Input.octaveHandler.getMinOctave(),
       left: 4,
       top: 2,
       height: 28,
       width: 150,
       font: UI.fontMed,
       onChange: (value) => {
-        Input.setCurrentOctave(value);
+        Input.octaveHandler.setCurrentOctave(value);
       },
     });
     this.addChild(this.octaveBox);
@@ -96,15 +90,12 @@ export default class AppPianoView extends AppPanelContainer {
     });
 
     EventBus.on(EVENT.octaveChanged, (value: number) => {
-      this.octave = value;
-      this.octaveBox.setValue(this.octave, true);
+      this.octaveBox.setValue(value, true);
     });
 
     EventBus.on(EVENT.trackerModeChanged, () => {
-      this.maxOctave = Tracker.inFTMode() ? 7 : 3;
-      this.minOctave = Tracker.inFTMode() ? 0 : 1;
-      this.octaveBox.setMax(this.maxOctave, true);
-      this.octaveBox.setMin(this.minOctave); // this.octaveBox.setMin(this.minOctave,true);
+      this.octaveBox.setMax(Input.octaveHandler.getMaxOctave(), true);
+      this.octaveBox.setMin(Input.octaveHandler.getMinOctave()); // this.octaveBox.setMin(this.minOctave,true);
     });
   }
 
@@ -175,9 +166,10 @@ export default class AppPianoView extends AppPanelContainer {
     const key = this.getKeyAtPoint(x, y);
     if (key) {
       if (key !== this.prevDown) {
-        Input.handleNoteOn(key + this.octave * 12);
+        const octave = Input.octaveHandler.getCurrentOctave();
+        Input.keyboard.handleNoteOn(key + octave * 12);
         if (this.prevDown)
-          Input.handleNoteOff(this.prevDown + this.octave * 12);
+          Input.keyboard.handleNoteOff(this.prevDown + octave * 12);
         this.prevDown = key;
       }
     }
@@ -189,12 +181,13 @@ export default class AppPianoView extends AppPanelContainer {
 
     let key: number | null = this.getKeyAtPoint(x, y);
     if (!key) key = this.prevDown;
+    const octave = Input.octaveHandler.getCurrentOctave();
     if (key) {
-      Input.handleNoteOff(key + this.octave * 12);
+      Input.keyboard.handleNoteOff(key + octave * 12);
       this.prevDown = null;
     }
 
-    if (this.prevDown) Input.handleNoteOff(this.prevDown + this.octave * 12);
+    if (this.prevDown) Input.keyboard.handleNoteOff(this.prevDown + octave * 12);
     this.prevDown = null;
   }
 
@@ -206,9 +199,10 @@ export default class AppPianoView extends AppPanelContainer {
     const key = this.getKeyAtPoint(x, y);
     if (key) {
       if (key !== this.prevDown) {
-        Input.handleNoteOn(key + this.octave * 12);
+        const octave = Input.octaveHandler.getCurrentOctave();
+        Input.keyboard.handleNoteOn(key + octave * 12);
         if (this.prevDown)
-          Input.handleNoteOff(this.prevDown + this.octave * 12);
+          Input.keyboard.handleNoteOff(this.prevDown + octave * 12);
         this.prevDown = key;
       }
     }
@@ -226,12 +220,13 @@ export default class AppPianoView extends AppPanelContainer {
       let keyX = 0;
 
       let counter = 0;
+      const octave = Input.octaveHandler.getCurrentOctave();
       while (keyX < this.width) {
         const thisOctave = Math.floor(counter / 7);
         const octaveIndex = counter % 7;
 
         const keyIndex =
-          (this.octave + thisOctave) * 12 + this.keyMapWhite[octaveIndex] + 1;
+          (octave + thisOctave) * 12 + this.keyMapWhite[octaveIndex] + 1;
 
         const img = this.keyDown[keyIndex] ? this.keyImgDown : this.keyImg;
         this.ctx.drawImage(img, keyX, this.keyTop, this.keyWidth, keyHeight);
@@ -253,7 +248,7 @@ export default class AppPianoView extends AppPanelContainer {
 
         if (octaveIndex !== 2 && octaveIndex !== 6) {
           const keyIndex =
-            (this.octave + thisOctave) * 12 +
+            (octave + thisOctave) * 12 +
             this.keyMapBlack[octaveIndex * 2 + 1] +
             1;
           const bImg = this.keyDown[keyIndex] ? this.bKeyImgDown : this.bKeyImg;

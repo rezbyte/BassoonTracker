@@ -408,7 +408,7 @@ class Tracker {
     if (!this.isPlugin) Audio.setMasterVolume(1);
     if (UI) {
       UI.setStatus("Ready");
-      Input.clearInputNotes();
+      Input.keyboard.clearInputNotes();
     }
 
     this.clearEffectCache();

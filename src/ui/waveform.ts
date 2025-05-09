@@ -504,15 +504,19 @@ export default class WaveForm extends Element {
 
   playSection(section: RANGE.range | RANGE.loop) {
     if (section === RANGE.range && this.rangeStart >= 0) {
-      Input.handleNoteOn(Input.getPrevIndex(), undefined, this.rangeStart);
+      Input.keyboard.handleNoteOn(
+        Input.keyboard.getPrevIndex(),
+        undefined,
+        this.rangeStart,
+      );
     }
     if (section === RANGE.loop) {
       if (this.currentInstrument === null) {
         console.error("Cannot play loop section without an instrument loaded!");
         return;
       }
-      Input.handleNoteOn(
-        Input.getPrevIndex(),
+      Input.keyboard.handleNoteOn(
+        Input.keyboard.getPrevIndex(),
         undefined,
         this.currentInstrument.sample.loop.start,
       );

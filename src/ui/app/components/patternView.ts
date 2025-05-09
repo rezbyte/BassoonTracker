@@ -157,13 +157,13 @@ export default class AppPatternView extends Panel {
 
     EventBus.on(EVENT.patternPosChange, (positions: PatternPosChangeValue) => {
       //if (Input.isMetaKeyDown() && !Tracker.getIsRecording() && !Tracker.isPlaying()){
-      if (Input.isMetaKeyDown() && !Tracker.isPlaying()) {
+      if (Input.keyboard.isMetaKeyDown() && !Tracker.isPlaying()) {
         this.initRange(positions);
       }
     });
     EventBus.on(EVENT.cursorPositionChange, (pos: number) => {
       //if (Input.isMetaKeyDown() && !Tracker.getIsRecording() && !Tracker.isPlaying()){
-      if (Input.isMetaKeyDown() && !Tracker.isPlaying()) {
+      if (Input.keyboard.isMetaKeyDown() && !Tracker.isPlaying()) {
         this.initRange({
           current: Tracker.getCurrentPatternPos(),
           prev: Tracker.getCurrentPatternPos(),

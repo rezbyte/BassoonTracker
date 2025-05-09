@@ -112,18 +112,23 @@ class Midi {
 
     // middle C is 60 - in Bassoon this is 13
     const key = note - 47;
-    const octave = Input.getCurrentOctave();
+    const octave = Input.octaveHandler.getCurrentOctave();
     const volume = Settings.midi === "enabled" ? (value + 1) >> 1 : undefined;
-    Input.handleNoteOn(key + octave * 12, undefined, undefined, volume);
+    Input.keyboard.handleNoteOn(
+      key + octave * 12,
+      undefined,
+      undefined,
+      volume,
+    );
   }
 
   private noteOff(note: number, value: number) {
     console.log("note off", note, value);
 
     const key = note - 47;
-    const octave = Input.getCurrentOctave();
+    const octave = Input.octaveHandler.getCurrentOctave();
     const register = Settings.midi === "enabled";
-    Input.handleNoteOff(key + octave * 12, register);
+    Input.keyboard.handleNoteOff(key + octave * 12, register);
   }
 }
 
