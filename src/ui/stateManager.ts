@@ -91,7 +91,7 @@ type UndoAction<T> =
 type ActionList<T> = UndoAction<T>[];
 
 class StateManager {
-  private history: { undo: ActionList<any>; redo: ActionList<any> } = {
+  private history: { undo: ActionList<unknown>; redo: ActionList<unknown> } = {
     undo: [],
     redo: [],
   };
@@ -127,7 +127,7 @@ class StateManager {
 
     if (doRegister) {
       const maxHistory = 100;
-      this.history.undo.push(action);
+      this.history.undo.push(action as UndoAction<unknown>);
       if (this.history.undo.length > maxHistory) this.history.undo.shift();
       this.history.redo = [];
     }

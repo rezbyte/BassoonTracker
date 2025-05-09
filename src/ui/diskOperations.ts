@@ -505,18 +505,9 @@ export default class DiskOperations extends Panel {
         this.onLoadChildren = (item, data) => {
           if (data !== undefined && !DiskOperations.isSamples(data)) {
             if (item.title == "... load more ..." && item.parent) {
-              const parent = item.parent;
-              data.forEach((child) => {
-                child.parent = parent;
-              });
-              const siblings = parent.children!;
-              siblings.pop();
-              parent.children = siblings.concat(data);
+              DiskOperations.replaceLoadingItem(item, data);
             } else {
-              data.forEach((child) => {
-                child.parent = item;
-              });
-              item.children = data;
+              DiskOperations.addChildren(item, data);
             }
           } else {
             item.children = [
@@ -571,18 +562,9 @@ export default class DiskOperations extends Panel {
         this.onLoadChildren = (item, data) => {
           if (data !== undefined && !DiskOperations.isSamples(data)) {
             if (item.title == "... load more ..." && item.parent) {
-              const parent = item.parent;
-              data.forEach((child) => {
-                child.parent = parent;
-              });
-              const siblings = parent.children!;
-              siblings.pop();
-              parent.children = siblings.concat(data);
+              DiskOperations.replaceLoadingItem(item, data);
             } else {
-              data.forEach((child) => {
-                child.parent = item;
-              });
-              item.children = data;
+              DiskOperations.addChildren(item, data);
             }
           } else {
             item.children = [
@@ -663,10 +645,7 @@ export default class DiskOperations extends Panel {
 
         this.onLoadChildren = (item, data) => {
           if (data !== undefined && !DiskOperations.isSamples(data)) {
-            data.forEach((child) => {
-              child.parent = item;
-            });
-            item.children = data;
+            DiskOperations.addChildren(item, data);
           } else {
             item.children = [
               {
@@ -840,6 +819,39 @@ export default class DiskOperations extends Panel {
       }
     }
   }
+
+  private static replaceLoadingItem(
+    item: ListBoxItem,
+    newSiblings: ListBoxItem[],
+  ) {
+    const parent = item.parent;
+    if (parent === undefined) {
+      console.error(
+        `No parent for ListBoxItem with title: ${item.label} to be replaced!`,
+      );
+      return;
+    }
+    newSiblings.forEach((child) => {
+      child.parent = parent;
+    });
+    const siblings = parent.children;
+    if (siblings === undefined) {
+      console.error(
+        `ListBoxItem with title: ${item.label} has parent but parent does not have that ListBoxItem as a child!`,
+      );
+      return;
+    }
+    siblings.pop();
+    parent.children = siblings.concat(newSiblings);
+  }
+
+  private static addChildren(item: ListBoxItem, newChildren: ListBoxItem[]) {
+    newChildren.forEach((child) => {
+      child.parent = item;
+    });
+    item.children = newChildren;
+  }
+
   private static isSamples(
     data: ListBoxItem[] | Samples | undefined,
   ): data is Samples {

@@ -16,6 +16,7 @@ type OnCompleteHandler = (
   a: Blob,
   b: XMLHttpRequest,
 ) => void;
+
 interface CallHandlers {
   onComplete: OnCompleteHandler;
   onError?: (a: XMLHttpRequestEventTarget | null) => void;
@@ -29,7 +30,7 @@ interface UrlParameters {
 }
 
 interface CallReturn {
-  apiResponse: any;
+  apiResponse: unknown;
   response: Blob;
   r: XMLHttpRequest;
 }
@@ -276,13 +277,13 @@ class DropboxService {
     return arguments.length > 1 ? (localStorage[key] = val) : localStorage[key];
   }
   //private static toString = ({}).toString;
-  private static isFunction(x: any): x is Function {
+  private static isFunction(x: unknown): x is OnCompleteHandler {
     return toString.call(x) == "[object Function]";
   }
-  private static isString(x: any): x is string {
+  private static isString(x: unknown): x is string {
     return toString.call(x) == "[object String]";
   }
-  private static isObject(x: any): x is object {
+  private static isObject(x: unknown): x is object {
     return toString.call(x) == "[object Object]";
   }
   private static paramsFromUrlHash(): UrlParameters {

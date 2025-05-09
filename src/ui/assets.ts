@@ -20,7 +20,7 @@ export interface Scale9 {
 
 interface AssetInfo {
   generate<T extends Element>(andCache: false): T;
-  generate<T extends Element>(andCache: true): void;
+  generate<T extends Element>(andCache: true): void; // eslint-disable-line @typescript-eslint/no-unused-vars
   isLoading?: boolean;
 }
 

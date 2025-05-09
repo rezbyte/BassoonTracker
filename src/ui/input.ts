@@ -138,6 +138,11 @@ class Input {
   init() {
     // mouse, touch and key handlers
 
+    const handleTouchDown = this.handleTouchDown.bind(this);
+    const handleTouchMove = this.handleTouchMove.bind(this);
+    const handleTouchUp = this.handleTouchUp.bind(this);
+    const handleTouchOut = this.handleTouchOut.bind(this);
+
     canvas.addEventListener("mousedown", handleTouchDown, false);
     canvas.addEventListener("mousemove", handleTouchMove, false);
     canvas.addEventListener("mouseup", handleTouchUp, false);
@@ -153,555 +158,574 @@ class Input {
       canvas.addEventListener("MSPointerEnd", handleTouchUp, false);
     }
 
+    const handleMouseWheel = this.handleMouseWheel.bind(this);
     canvas.addEventListener("mousewheel", handleMouseWheel, false);
     canvas.addEventListener("DOMMouseScroll", handleMouseWheel, false);
     canvas.addEventListener("wheel", handleMouseWheel, false);
 
+    const handleKeyDown = this.handleKeyDown.bind(this);
+    const handleKeyUp = this.handleKeyUp.bind(this);
     window.addEventListener("keydown", handleKeyDown, false);
     window.addEventListener("keyup", handleKeyUp, false);
 
+    const handleDragenter = this.handleDragenter.bind(this);
+    const handleDragover = this.handleDragover.bind(this);
+    const handleDrop = this.handleDrop.bind(this);
     canvas.addEventListener("dragenter", handleDragenter, false);
     canvas.addEventListener("dragover", handleDragover, false);
     canvas.addEventListener("drop", handleDrop, false);
 
+    const handlePaste = this.handlePaste.bind(this);
+    const handleCopy = this.handleCopy.bind(this);
+    const handleCut = this.handleCut.bind(this);
+    const handleUndo = this.handleUndo.bind(this);
+    const handleDelete = this.handleDelete.bind(this);
     window.addEventListener("paste", handlePaste, false);
     window.addEventListener("copy", handleCopy, false);
     window.addEventListener("cut", handleCut, false);
     window.addEventListener("undo", handleUndo, false);
     window.addEventListener("delete", handleDelete, false);
 
-    if (!App.isPlugin) window.addEventListener("resize", handleResize, false);
+    if (!App.isPlugin)
+      window.addEventListener("resize", this.handleResize, false);
 
-    const me = this;
-    function handleTouchDown(event: TouchEvent | MouseEvent) {
-      event.preventDefault();
-      window.focus();
+    this.handleResize();
+  }
 
-      if (!me.isTouched) {
-        // first touch - init media on IOS and Android
-        // note: audioContext.resume must be called on touchup, touchdown is too soon.
+  private handleTouchDown(event: TouchEvent | MouseEvent) {
+    event.preventDefault();
+    window.focus();
 
-        if (typeof Audio !== "undefined" && Audio.playSilence) {
-          if (Audio.context && Audio.context.state !== "suspended") {
-            Audio.playSilence();
-            me.isTouched = true;
-          }
-        }
-      }
+    if (!this.isTouched) {
+      // first touch - init media on IOS and Android
+      // note: audioContext.resume must be called on touchup, touchdown is too soon.
 
-      if (
-        window.TouchEvent &&
-        event instanceof TouchEvent &&
-        event.touches.length > 0
-      ) {
-        const touches = event.changedTouches;
-        for (const touch of touches) {
-          initTouch(touch.identifier.toString(), touch.pageX, touch.pageY);
-        }
-      } else if (event instanceof MouseEvent) {
-        const touchIndex = me.getTouchIndex("notouch");
-        if (touchIndex >= 0) me.touchData.touches.splice(touchIndex, 1);
-        initTouch("notouch", event.pageX, event.pageY);
-        //initTouch("notouch",event.clientX,event.clientY);
-      }
-
-      function initTouch(id: string, x: number, y: number) {
-        me.touchData.isTouchDown = true;
-
-        const rect = canvas.getBoundingClientRect();
-        x -= rect.left + window.pageXOffset;
-        y -= rect.top + window.pageYOffset;
-
-        me.currentEventTarget = UI.getModalElement();
-        if (me.currentEventTarget) {
-          me.currentEventTarget.eventX = x;
-          me.currentEventTarget.eventY = y;
-        } else {
-          me.currentEventTarget = UI.getEventElement(x, y);
-        }
-
-        if (
-          me.currentEventTarget &&
-          me.focusElement &&
-          me.focusElement.deActivate &&
-          me.focusElement.name !== me.currentEventTarget.name
-        ) {
-          me.focusElement.deActivate(me.currentEventTarget);
-        }
-
-        const touchX = me.currentEventTarget
-          ? (me.currentEventTarget.eventX ?? x)
-          : x;
-        const touchY = me.currentEventTarget
-          ? (me.currentEventTarget.eventY ?? y)
-          : y;
-
-        const thisTouch: Touch = {
-          id: id,
-          x: touchX,
-          y: touchY,
-          startX: touchX,
-          startY: touchY,
-          globalX: x,
-          globalY: y,
-          globalStartX: x,
-          globalStartY: y,
-          UIobject: me.currentEventTarget,
-
-          isMeta:
-            event.shiftKey || event.metaKey || event.ctrlKey || event.altKey,
-        };
-
-        me.touchData.touches.push(thisTouch);
-
-        if (thisTouch.UIobject) {
-          if (thisTouch.UIobject.onDragStart)
-            thisTouch.UIobject.onDragStart(thisTouch);
-          if (thisTouch.UIobject.onDown) thisTouch.UIobject.onDown(thisTouch);
-
-          //console.log(thisTouch.UIobject);
+      if (typeof Audio !== "undefined" && Audio.playSilence) {
+        if (Audio.context && Audio.context.state !== "suspended") {
+          Audio.playSilence();
+          this.isTouched = true;
         }
       }
     }
 
-    function handleTouchMove(event: TouchEvent | MouseEvent) {
-      event.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-
-      if (
-        window.TouchEvent &&
-        event instanceof TouchEvent &&
-        event.touches.length > 0
-      ) {
-        const touches = event.changedTouches;
-
-        for (let i = 0; i < touches.length; i++) {
-          const touch = touches[i];
-          updateTouch(
-            me.getTouchIndex(touch.identifier.toString()),
-            touch.pageX - rect.left,
-            touch.pageY - rect.top,
-          );
-        }
-      } else if (event instanceof MouseEvent) {
-        const _x = event.pageX - rect.left;
-        const _y = event.pageY - rect.top;
-        updateTouch(me.getTouchIndex("notouch"), _x, _y);
-        me.touchData.currentMouseX = _x;
-        me.touchData.currentMouseY = _y;
-        me.touchData.mouseMoved = new Date().getTime();
-
-        if (Settings.useHover) {
-          const hoverEventTarget = UI.getEventElement(_x, _y);
-          if (hoverEventTarget && hoverEventTarget.onHover)
-            hoverEventTarget.onHover(me.touchData);
-
-          if (me.prevHoverTarget && me.prevHoverTarget != hoverEventTarget) {
-            if (me.prevHoverTarget.onHoverExit)
-              me.prevHoverTarget.onHoverExit(me.touchData, hoverEventTarget);
-          }
-          me.prevHoverTarget = hoverEventTarget;
-        }
+    if (
+      window.TouchEvent &&
+      event instanceof TouchEvent &&
+      event.touches.length > 0
+    ) {
+      const touches = event.changedTouches;
+      for (const touch of touches) {
+        this.initTouch(
+          touch.identifier.toString(),
+          touch.pageX,
+          touch.pageY,
+          event,
+        );
       }
+    } else if (event instanceof MouseEvent) {
+      const touchIndex = this.getTouchIndex("notouch");
+      if (touchIndex >= 0) this.touchData.touches.splice(touchIndex, 1);
+      this.initTouch("notouch", event.pageX, event.pageY, event);
+      //initTouch("notouch",event.clientX,event.clientY);
+    }
+  }
 
-      function updateTouch(touchIndex: number, x: number, y: number) {
-        if (touchIndex >= 0) {
-          const thisTouch = me.touchData.touches[touchIndex] as Drag;
+  private initTouch(
+    id: string,
+    pageX: number,
+    pageY: number,
+    event: TouchEvent | MouseEvent,
+  ) {
+    this.touchData.isTouchDown = true;
 
-          thisTouch.globalX = x - window.pageXOffset;
-          thisTouch.globalY = y - window.pageYOffset;
+    const rect = canvas.getBoundingClientRect();
+    const x = pageX - rect.left + window.pageXOffset;
+    const y = pageY - rect.top + window.pageYOffset;
 
-          thisTouch.deltaX = thisTouch.globalX - thisTouch.globalStartX;
-          thisTouch.deltaY = thisTouch.globalY - thisTouch.globalStartY;
+    this.currentEventTarget = UI.getModalElement();
+    if (this.currentEventTarget) {
+      this.currentEventTarget.eventX = x;
+      this.currentEventTarget.eventY = y;
+    } else {
+      this.currentEventTarget = UI.getEventElement(x, y);
+    }
 
-          thisTouch.x = thisTouch.startX + thisTouch.deltaX;
-          thisTouch.y = thisTouch.startY + thisTouch.deltaY;
+    if (
+      this.currentEventTarget &&
+      this.focusElement &&
+      this.focusElement.deActivate &&
+      this.focusElement.name !== this.currentEventTarget.name
+    ) {
+      this.focusElement.deActivate(this.currentEventTarget);
+    }
 
-          me.touchData.touches.splice(touchIndex, 1, thisTouch);
+    const touchX = this.currentEventTarget
+      ? (this.currentEventTarget.eventX ?? x)
+      : x;
+    const touchY = this.currentEventTarget
+      ? (this.currentEventTarget.eventY ?? y)
+      : y;
 
-          if (me.touchData.isTouchDown && thisTouch.UIobject) {
-            if (thisTouch.UIobject.onDrag) {
-              thisTouch.dragX = x;
-              thisTouch.dragY = y;
-              thisTouch.UIobject.onDrag(thisTouch);
-            }
-          }
+    const thisTouch: Touch = {
+      id: id,
+      x: touchX,
+      y: touchY,
+      startX: touchX,
+      startY: touchY,
+      globalX: x,
+      globalY: y,
+      globalStartX: x,
+      globalStartY: y,
+      UIobject: this.currentEventTarget,
+
+      isMeta: event.shiftKey || event.metaKey || event.ctrlKey || event.altKey,
+    };
+
+    this.touchData.touches.push(thisTouch);
+
+    if (thisTouch.UIobject) {
+      if (thisTouch.UIobject.onDragStart)
+        thisTouch.UIobject.onDragStart(thisTouch);
+      if (thisTouch.UIobject.onDown) thisTouch.UIobject.onDown(thisTouch);
+
+      //console.log(thisTouch.UIobject);
+    }
+  }
+
+  private handleTouchMove(event: TouchEvent | MouseEvent) {
+    event.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+
+    if (
+      window.TouchEvent &&
+      event instanceof TouchEvent &&
+      event.touches.length > 0
+    ) {
+      const touches = event.changedTouches;
+
+      for (let i = 0; i < touches.length; i++) {
+        const touch = touches[i];
+        this.updateTouch(
+          this.getTouchIndex(touch.identifier.toString()),
+          touch.pageX - rect.left,
+          touch.pageY - rect.top,
+        );
+      }
+    } else if (event instanceof MouseEvent) {
+      const _x = event.pageX - rect.left;
+      const _y = event.pageY - rect.top;
+      this.updateTouch(this.getTouchIndex("notouch"), _x, _y);
+      this.touchData.currentMouseX = _x;
+      this.touchData.currentMouseY = _y;
+      this.touchData.mouseMoved = new Date().getTime();
+
+      if (Settings.useHover) {
+        const hoverEventTarget = UI.getEventElement(_x, _y);
+        if (hoverEventTarget && hoverEventTarget.onHover)
+          hoverEventTarget.onHover(this.touchData);
+
+        if (this.prevHoverTarget && this.prevHoverTarget != hoverEventTarget) {
+          if (this.prevHoverTarget.onHoverExit)
+            this.prevHoverTarget.onHoverExit(this.touchData, hoverEventTarget);
+        }
+        this.prevHoverTarget = hoverEventTarget;
+      }
+    }
+  }
+
+  private updateTouch(touchIndex: number, x: number, y: number) {
+    if (touchIndex >= 0) {
+      const thisTouch = this.touchData.touches[touchIndex] as Drag;
+
+      thisTouch.globalX = x - window.pageXOffset;
+      thisTouch.globalY = y - window.pageYOffset;
+
+      thisTouch.deltaX = thisTouch.globalX - thisTouch.globalStartX;
+      thisTouch.deltaY = thisTouch.globalY - thisTouch.globalStartY;
+
+      thisTouch.x = thisTouch.startX + thisTouch.deltaX;
+      thisTouch.y = thisTouch.startY + thisTouch.deltaY;
+
+      this.touchData.touches.splice(touchIndex, 1, thisTouch);
+
+      if (this.touchData.isTouchDown && thisTouch.UIobject) {
+        if (thisTouch.UIobject.onDrag) {
+          thisTouch.dragX = x;
+          thisTouch.dragY = y;
+          thisTouch.UIobject.onDrag(thisTouch);
         }
       }
     }
+  }
 
-    function handleTouchUp(event: TouchEvent | MouseEvent) {
-      if (!me.isTouched) {
-        if (Audio && Audio.checkState) Audio.checkState();
-      }
-
-      me.touchData.isTouchDown = false;
-
-      if (event && window.TouchEvent && event instanceof TouchEvent) {
-        const touches = event.changedTouches;
-
-        for (let i = 0; i < touches.length; i++) {
-          const touch = touches[i];
-          endTouch(me.getTouchIndex(touch.identifier.toString()));
-        }
-
-        if (event.touches.length === 0) {
-          resetInput();
-        }
-      } else {
-        endTouch(me.getTouchIndex("notouch"));
-        resetInput();
-      }
-
-      function endTouch(touchIndex: number) {
-        if (touchIndex >= 0) {
-          const thisTouch = me.touchData.touches[touchIndex];
-          const deltaX = thisTouch.startX - thisTouch.x;
-          const deltaY = thisTouch.startY - thisTouch.y;
-          const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-          let clearSelection = true;
-          if (thisTouch.UIobject) {
-            const elm = thisTouch.UIobject;
-            if (elm instanceof Menu && elm.keepSelection)
-              clearSelection = false;
-
-            if (distance < 8 && elm.onClick) {
-              elm.onClick(thisTouch);
-            }
-
-            if (elm.onTouchUp) elm.onTouchUp(thisTouch);
-          }
-
-          if (clearSelection && distance < 8) UI.clearSelection();
-
-          me.touchData.touches.splice(touchIndex, 1);
-        }
-      }
-
-      function resetInput() {
-        //Input.isDown(false);
-        //Input.isUp(false);
-        //Input.isLeft(false);
-        //Input.isRight(false);
-      }
+  private handleTouchUp(event: TouchEvent | MouseEvent) {
+    if (!this.isTouched) {
+      if (Audio && Audio.checkState) Audio.checkState();
     }
 
-    function handleTouchOut(event: MouseEvent) {
-      if (me.touchData.isTouchDown) {
-        handleTouchUp(event);
+    this.touchData.isTouchDown = false;
+
+    if (event && window.TouchEvent && event instanceof TouchEvent) {
+      const touches = event.changedTouches;
+
+      for (let i = 0; i < touches.length; i++) {
+        const touch = touches[i];
+        this.endTouch(this.getTouchIndex(touch.identifier.toString()));
       }
+
+      if (event.touches.length === 0) {
+        this.resetInput();
+      }
+    } else {
+      this.endTouch(this.getTouchIndex("notouch"));
+      this.resetInput();
+    }
+  }
+
+  private endTouch(touchIndex: number) {
+    if (touchIndex >= 0) {
+      const thisTouch = this.touchData.touches[touchIndex];
+      const deltaX = thisTouch.startX - thisTouch.x;
+      const deltaY = thisTouch.startY - thisTouch.y;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      let clearSelection = true;
+      if (thisTouch.UIobject) {
+        const elm = thisTouch.UIobject;
+        if (elm instanceof Menu && elm.keepSelection) clearSelection = false;
+
+        if (distance < 8 && elm.onClick) {
+          elm.onClick(thisTouch);
+        }
+
+        if (elm.onTouchUp) elm.onTouchUp(thisTouch);
+      }
+
+      if (clearSelection && distance < 8) UI.clearSelection();
+
+      this.touchData.touches.splice(touchIndex, 1);
+    }
+  }
+
+  private resetInput() {
+    //Input.isDown(false);
+    //Input.isUp(false);
+    //Input.isLeft(false);
+    //Input.isRight(false);
+  }
+
+  private handleTouchOut(event: MouseEvent) {
+    if (this.touchData.isTouchDown) {
+      this.handleTouchUp(event);
+    }
+  }
+
+  private handleKeyDown(event: KeyboardEvent & { keyIdentifier?: string }) {
+    event.preventDefault();
+
+    const keyboardTable =
+      KEYBOARDTABLE[Settings.keyboardTable] || KEYBOARDTABLE.azerty;
+
+    const keyCode = event.keyCode;
+    let key = event.key;
+    //console.error(event.code);
+    //TODO use event.code as this is device independent.
+
+    const meta = {
+      shift: event.shiftKey,
+      control: event.ctrlKey,
+      alt: event.altKey,
+      command: event.metaKey,
+    };
+    this._isMetaKeyDown =
+      meta.command || meta.control || meta.alt || meta.shift;
+
+    if (!key && event.keyIdentifier) {
+      // safari on osX ...
+      let id = event.keyIdentifier;
+      id = id.replace("U+", "");
+      key = String.fromCharCode(parseInt(id, 16)).toLowerCase();
     }
 
-    function handleKeyDown(event: KeyboardEvent & { keyIdentifier?: string }) {
-      event.preventDefault();
+    //console.log(keyCode);
+    //ole.log(prevHoverTarget);
+    if (this.focusElement && this.focusElement.onKeyDown) {
+      const handled = this.focusElement.onKeyDown(keyCode, event);
+      if (handled) return;
+    }
 
-      const keyboardTable =
-        KEYBOARDTABLE[Settings.keyboardTable] || KEYBOARDTABLE.azerty;
-
-      const keyCode = event.keyCode;
-      let key = event.key;
-      //console.error(event.code);
-      //TODO use event.code as this is device independent.
-
-      const meta = {
-        shift: event.shiftKey,
-        control: event.ctrlKey,
-        alt: event.altKey,
-        command: event.metaKey,
-      };
-      me._isMetaKeyDown =
-        meta.command || meta.control || meta.alt || meta.shift;
-
-      if (!key && event.keyIdentifier) {
-        // safari on osX ...
-        let id = event.keyIdentifier;
-        id = id.replace("U+", "");
-        key = String.fromCharCode(parseInt(id, 16)).toLowerCase();
-      }
-
-      //console.log(keyCode);
-      //ole.log(prevHoverTarget);
-      if (me.focusElement && me.focusElement.onKeyDown) {
-        const handled = me.focusElement.onKeyDown(keyCode, event);
-        if (handled) return;
-      }
-
-      switch (keyCode) {
-        case 8: // backspace
-          if (Tracker.getIsRecording()) {
-            if (me._isMetaKeyDown) {
-              Editor.removeNote();
-              Tracker.moveCurrentPatternPos(-1);
-            } else {
-              const pos = Editor.getCurrentTrackPosition();
-              if (pos === 0) {
-                Editor.putNote(0, 0);
-              } else {
-                if (Tracker.inFTMode() && (pos === 3 || pos === 4)) {
-                  Editor.putNoteParam(pos, -1);
-                } else {
-                  Editor.putNoteParam(pos, 0);
-                }
-              }
-              Tracker.moveCurrentPatternPos(1);
-            }
-            return;
-          } else {
-            Tracker.playPatternStep(Editor.getCurrentTrackPosition());
+    switch (keyCode) {
+      case 8: // backspace
+        if (Tracker.getIsRecording()) {
+          if (this._isMetaKeyDown) {
+            Editor.removeNote();
             Tracker.moveCurrentPatternPos(-1);
-            // on Mac this should probably be delete ...
-          }
-
-          return;
-        case 9: // tab
-          event.stopPropagation();
-          event.preventDefault();
-          if (me._isMetaKeyDown) {
-            Editor.moveCursorPosition(-Editor.getStepsPerTrack());
           } else {
-            Editor.moveCursorPosition(Editor.getStepsPerTrack());
-          }
-          return;
-        case 13: // enter
-          if (Tracker.getIsRecording() && me._isMetaKeyDown) {
-            Editor.insertNote();
-            Tracker.moveCurrentPatternPos(1);
-          } else {
-            Tracker.togglePlay();
-          }
-          return;
-        case 16: // shift
-          //Tracker.playPattern();
-          break;
-        case 27: // esc
-          UI.clearSelection();
-          break;
-        case 32: // space
-          Tracker.toggleRecord();
-          return;
-        case 33: {
-          // pageup
-          let step = Math.floor(Tracker.getPatternLength() / 4);
-          if (step === 0) step = 1;
-          let pos = Math.floor(Tracker.getCurrentPatternPos() / step) * step;
-          if (Tracker.getCurrentPatternPos() === pos) pos -= step;
-          if (pos < 0) pos = 0;
-          Tracker.setCurrentPatternPos(pos);
-          return;
-        }
-        case 34: {
-          // pagedown
-          let step = Math.floor(Tracker.getPatternLength() / 4);
-          if (step === 0) step = 1;
-          let pos = Math.ceil(Tracker.getCurrentPatternPos() / step) * step;
-          if (Tracker.getCurrentPatternPos() === pos) pos += step;
-          if (pos >= Tracker.getPatternLength() - 1)
-            pos = Tracker.getPatternLength() - 1;
-          Tracker.setCurrentPatternPos(pos);
-          return;
-        }
-        case 35: // end
-          Tracker.setCurrentPatternPos(Tracker.getPatternLength() - 1);
-          return;
-        case 36: // home
-          Tracker.setCurrentPatternPos(0);
-          return;
-        case 37: // left
-          Editor.moveCursorPosition(-1);
-          return;
-        case 38: // up
-          Tracker.moveCurrentPatternPos(-1);
-          return;
-        case 39: // right
-          Editor.moveCursorPosition(1);
-          return;
-        case 40: // down
-          Tracker.moveCurrentPatternPos(1);
-          return;
-        case 46: {
-          // delete
-          if (Tracker.getIsRecording()) {
             const pos = Editor.getCurrentTrackPosition();
             if (pos === 0) {
               Editor.putNote(0, 0);
             } else {
-              Editor.putNoteParam(pos, 0);
+              if (Tracker.inFTMode() && (pos === 3 || pos === 4)) {
+                Editor.putNoteParam(pos, -1);
+              } else {
+                Editor.putNoteParam(pos, 0);
+              }
             }
             Tracker.moveCurrentPatternPos(1);
           }
           return;
+        } else {
+          Tracker.playPatternStep(Editor.getCurrentTrackPosition());
+          Tracker.moveCurrentPatternPos(-1);
+          // on Mac this should probably be delete ...
         }
-        case 112: //F1
-        case 113: //F2
-        case 114: //F3
-        case 115: //F4
-        case 116: //F5
-        case 117: //F6
-        case 118: //F7
-          me.setCurrentOctave(keyCode - 111);
-          return;
-        case 119: //F8
-        case 120: //F9
-        case 121: //F10
-        case 122: //F11
-        case 123: //F12
-          return;
-        case 221: // ¨^
-          return;
+
+        return;
+      case 9: // tab
+        event.stopPropagation();
+        event.preventDefault();
+        if (this._isMetaKeyDown) {
+          Editor.moveCursorPosition(-Editor.getStepsPerTrack());
+        } else {
+          Editor.moveCursorPosition(Editor.getStepsPerTrack());
+        }
+        return;
+      case 13: // enter
+        if (Tracker.getIsRecording() && this._isMetaKeyDown) {
+          Editor.insertNote();
+          Tracker.moveCurrentPatternPos(1);
+        } else {
+          Tracker.togglePlay();
+        }
+        return;
+      case 16: // shift
+        //Tracker.playPattern();
+        break;
+      case 27: // esc
+        UI.clearSelection();
+        break;
+      case 32: // space
+        Tracker.toggleRecord();
+        return;
+      case 33: {
+        // pageup
+        let step = Math.floor(Tracker.getPatternLength() / 4);
+        if (step === 0) step = 1;
+        let pos = Math.floor(Tracker.getCurrentPatternPos() / step) * step;
+        if (Tracker.getCurrentPatternPos() === pos) pos -= step;
+        if (pos < 0) pos = 0;
+        Tracker.setCurrentPatternPos(pos);
+        return;
       }
-
-      if (key && keyCode > 40 && keyCode < 230) {
-        if (me._isMetaKeyDown && keyCode >= 65 && keyCode <= 90) {
-          // A-Z with shift key
-          //console.log("meta " + keyCode);
-
-          event.stopPropagation();
-          event.preventDefault();
-
-          switch (keyCode) {
-            case 65: //a - select all
-              EventBus.trigger(EVENT.commandSelectAll);
-              return;
-            case 67: //c - copy
-              UI.copySelection(true);
-              return;
-            case 86: //v - paste
-              UI.pasteSelection(true);
-              return;
-            case 88: //x - cut
-              UI.cutSelection(true);
-              return;
-            case 89: //y - redo
-              EventBus.trigger(EVENT.commandRedo);
-              return;
-            case 90: //z - undo
-              EventBus.trigger(EVENT.commandUndo);
-              return;
+      case 34: {
+        // pagedown
+        let step = Math.floor(Tracker.getPatternLength() / 4);
+        if (step === 0) step = 1;
+        let pos = Math.ceil(Tracker.getCurrentPatternPos() / step) * step;
+        if (Tracker.getCurrentPatternPos() === pos) pos += step;
+        if (pos >= Tracker.getPatternLength() - 1)
+          pos = Tracker.getPatternLength() - 1;
+        Tracker.setCurrentPatternPos(pos);
+        return;
+      }
+      case 35: // end
+        Tracker.setCurrentPatternPos(Tracker.getPatternLength() - 1);
+        return;
+      case 36: // home
+        Tracker.setCurrentPatternPos(0);
+        return;
+      case 37: // left
+        Editor.moveCursorPosition(-1);
+        return;
+      case 38: // up
+        Tracker.moveCurrentPatternPos(-1);
+        return;
+      case 39: // right
+        Editor.moveCursorPosition(1);
+        return;
+      case 40: // down
+        Tracker.moveCurrentPatternPos(1);
+        return;
+      case 46: {
+        // delete
+        if (Tracker.getIsRecording()) {
+          const pos = Editor.getCurrentTrackPosition();
+          if (pos === 0) {
+            Editor.putNote(0, 0);
+          } else {
+            Editor.putNoteParam(pos, 0);
           }
+          Tracker.moveCurrentPatternPos(1);
+        }
+        return;
+      }
+      case 112: //F1
+      case 113: //F2
+      case 114: //F3
+      case 115: //F4
+      case 116: //F5
+      case 117: //F6
+      case 118: //F7
+        this.setCurrentOctave(keyCode - 111);
+        return;
+      case 119: //F8
+      case 120: //F9
+      case 121: //F10
+      case 122: //F11
+      case 123: //F12
+        return;
+      case 221: // ¨^
+        return;
+    }
 
-          return;
+    if (key && keyCode > 40 && keyCode < 230) {
+      if (this._isMetaKeyDown && keyCode >= 65 && keyCode <= 90) {
+        // A-Z with shift key
+        //console.log("meta " + keyCode);
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        switch (keyCode) {
+          case 65: //a - select all
+            EventBus.trigger(EVENT.commandSelectAll);
+            return;
+          case 67: //c - copy
+            UI.copySelection(true);
+            return;
+          case 86: //v - paste
+            UI.pasteSelection(true);
+            return;
+          case 88: //x - cut
+            UI.cutSelection(true);
+            return;
+          case 89: //y - redo
+            EventBus.trigger(EVENT.commandRedo);
+            return;
+          case 90: //z - undo
+            EventBus.trigger(EVENT.commandUndo);
+            return;
         }
 
-        let index = -1;
-        const keyboardNote = keyboardTable[key];
-
-        if (typeof keyboardNote === "number") {
-          index = me.currentOctave * 12 + keyboardNote;
-          if (keyboardNote === 0) index = 0;
-        }
-
-        me.handleNoteOn(index, key);
-      }
-    }
-
-    function handleKeyUp(event: KeyboardEvent & { keyIdentifier?: string }) {
-      let key = event.key;
-
-      if (!key && event.keyIdentifier) {
-        // safari on osX ...
-        let id = event.keyIdentifier;
-        id = id.replace("U+", "");
-        key = String.fromCharCode(parseInt(id, 16)).toLowerCase();
+        return;
       }
 
-      const keyCode = event.keyCode;
+      let index = -1;
+      const keyboardNote = keyboardTable[key];
 
-      if (isMetaKeyCode(keyCode)) me._isMetaKeyDown = false;
+      if (typeof keyboardNote === "number") {
+        index = this.currentOctave * 12 + keyboardNote;
+        if (keyboardNote === 0) index = 0;
+      }
 
-      if (key && keyCode > 40 && keyCode < 200) {
-        const keyboardTable =
-          KEYBOARDTABLE[Settings.keyboardTable] || KEYBOARDTABLE.azerty;
-        const keyboardNote = keyboardTable[key];
+      this.handleNoteOn(index, key);
+    }
+  }
 
-        if (typeof keyboardNote === "number") {
-          return me.handleNoteOff(me.currentOctave * 12 + keyboardNote);
-        }
+  private handleKeyUp(event: KeyboardEvent & { keyIdentifier?: string }) {
+    let key = event.key;
+
+    if (!key && event.keyIdentifier) {
+      // safari on osX ...
+      let id = event.keyIdentifier;
+      id = id.replace("U+", "");
+      key = String.fromCharCode(parseInt(id, 16)).toLowerCase();
+    }
+
+    const keyCode = event.keyCode;
+
+    if (Input.isMetaKeyCode(keyCode)) this._isMetaKeyDown = false;
+
+    if (key && keyCode > 40 && keyCode < 200) {
+      const keyboardTable =
+        KEYBOARDTABLE[Settings.keyboardTable] || KEYBOARDTABLE.azerty;
+      const keyboardNote = keyboardTable[key];
+
+      if (typeof keyboardNote === "number") {
+        return this.handleNoteOff(this.currentOctave * 12 + keyboardNote);
       }
     }
+  }
 
-    function handleMouseWheel(event: WheelEvent) {
-      event.preventDefault();
-      const x = me.touchData.currentMouseX;
-      const y = me.touchData.currentMouseY;
-      if (x && y) {
-        const target = UI.getEventElement(x, y);
+  private handleMouseWheel(event: WheelEvent) {
+    event.preventDefault();
+    const x = this.touchData.currentMouseX;
+    const y = this.touchData.currentMouseY;
+    if (x && y) {
+      const target = UI.getEventElement(x, y);
 
-        if (target && target.onMouseWheel) {
-          const deltaY: number = event.deltaY || -event.detail;
-          //const deltaX = event.deltaX || 0;
+      if (target && target.onMouseWheel) {
+        const deltaY: number = event.deltaY || -event.detail;
+        //const deltaX = event.deltaX || 0;
 
-          me.touchData.mouseWheels.unshift(deltaY);
-          if (me.touchData.mouseWheels.length > 10)
-            me.touchData.mouseWheels.pop();
+        this.touchData.mouseWheels.unshift(deltaY);
+        if (this.touchData.mouseWheels.length > 10)
+          this.touchData.mouseWheels.pop();
 
-          target.onMouseWheel(me.touchData);
-        }
+        target.onMouseWheel(this.touchData);
       }
     }
+  }
 
-    function handleDragenter(e: DragEvent) {
-      e.stopPropagation();
-      e.preventDefault();
+  private handleDragenter(e: DragEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  private handleDragover(e: DragEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  private handleDrop(e: DragEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const dt = e.dataTransfer;
+    if (dt == null) return;
+
+    const files = dt.files;
+
+    Tracker.handleUpload(files);
+  }
+
+  private handleResize() {
+    if (!App.isPlugin) {
+      // throttle resize events - resizing is expensive as all the canvas cache needs to be regenerated
+      clearTimeout(this.resizeTimer);
+      this.resizeTimer = setTimeout(function () {
+        UI.setSize(window.innerWidth, window.innerHeight);
+      }, 100);
     }
+  }
 
-    function handleDragover(e: DragEvent) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
+  private handlePaste() {
+    UI.pasteSelection(true);
+  }
 
-    function handleDrop(e: DragEvent) {
-      e.stopPropagation();
-      e.preventDefault();
+  private handleCopy() {
+    UI.copySelection(true);
+  }
 
-      const dt = e.dataTransfer;
-      if (dt == null) return;
+  private handleCut() {
+    console.error("cut");
+    UI.cutSelection(true);
+  }
+  private handleUndo() {
+    console.error("undo");
+  }
 
-      const files = dt.files;
+  private handleDelete() {
+    console.error("delete");
+  }
 
-      Tracker.handleUpload(files);
-    }
-
-    function handleResize() {
-      if (!App.isPlugin) {
-        // throttle resize events - resizing is expensive as all the canvas cache needs to be regenerated
-        clearTimeout(me.resizeTimer);
-        me.resizeTimer = setTimeout(function () {
-          UI.setSize(window.innerWidth, window.innerHeight);
-        }, 100);
-      }
-    }
-
-    function handlePaste() {
-      UI.pasteSelection(true);
-    }
-
-    function handleCopy() {
-      UI.copySelection(true);
-    }
-
-    function handleCut() {
-      console.error("cut");
-      UI.cutSelection(true);
-    }
-    function handleUndo() {
-      console.error("undo");
-    }
-
-    function handleDelete() {
-      console.error("delete");
-    }
-
-    function isMetaKeyCode(keyCode: number): boolean {
-      return (
-        keyCode === 16 ||
-        keyCode === 17 ||
-        keyCode === 18 ||
-        keyCode === 91 ||
-        keyCode === 93
-      );
-    }
-
-    handleResize();
+  private static isMetaKeyCode(keyCode: number): boolean {
+    return (
+      keyCode === 16 ||
+      keyCode === 17 ||
+      keyCode === 18 ||
+      keyCode === 91 ||
+      keyCode === 93
+    );
   }
 
   getTouchIndex(id: string): number {
@@ -752,6 +776,7 @@ class Input {
       this.focusElement = undefined;
     }
   }
+
   getFocusElement(): Element | undefined {
     return this.focusElement;
   }
@@ -763,7 +788,9 @@ class Input {
       if (note && note.source) {
         try {
           note.source.stop();
-        } catch (e) {}
+        } catch (e) {
+          // Ignore errors
+        }
       }
     }
   }
@@ -1002,7 +1029,9 @@ class Input {
         } else {
           this.keyDown[index].source.stop();
         }
-      } catch (e) {}
+      } catch (e) {
+        // Ignore errors
+      }
     }
     this.keyDown[index] = false;
 

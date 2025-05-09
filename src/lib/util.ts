@@ -850,11 +850,11 @@ export function createSlug(s: string): string {
   };
 
   s = s.split(" ").join("-");
-  s = s.replace(/[^A-Za-z0-9\[\] ]/g, function (a) {
+  s = s.replace(/[^A-Za-z0-9[\] ]/g, function (a) {
     return latin_map[a as keyof typeof latin_map] || a;
   });
   s = s.toLowerCase();
-  s = s.replace(/[^a-z0-9\-]+/g, "");
+  s = s.replace(/[^a-z0-9-]+/g, "");
 
   return s;
 }
